@@ -24,6 +24,7 @@ Transitioning from 9 years in telecommunications (fiber installations, customer 
 - [Secure VLAN Design with ACLs and Port Security](./packet-tracer/vlan-routing/lab01-secure-vlan-design-with-acls-and-port-security.md)
 - [Site-to-Site VPN with IPsec](./packet-tracer/vpn/lab02-site-to-site-vpn.md)
 
+
 ### 2. Security+ Hands-On
 - [Home Lab Firewall Setup (pfSense)](./security/firewall-lab/)
 - [VPN Configuration (Site-to-Site)](./security/vpn-lab/)
