@@ -464,4 +464,4 @@ network-learning-journey/
 ---
 
 *"The best way to learn networking is to break things and fix them. This portfolio is my journey of controlled chaos and systematic problem-solving."*  
-- Philippe Huot, Network & Security Professional
+— Philippe Huot, Network & Security Professional
