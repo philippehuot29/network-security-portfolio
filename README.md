@@ -21,7 +21,7 @@ Transitioning from 9 years in telecommunications (fiber installations, customer 
 ## 📂 Lab Projects
 
 ### 1. Packet Tracer Labs
-- [Secure VLAN Design with ACLs and Port Security](./packet-tracer/vlan-routing/)
+- [Secure VLAN Design with ACLs and Port Security](./packet-tracer/)
 - 
 
 ### 2. Security+ Hands-On
