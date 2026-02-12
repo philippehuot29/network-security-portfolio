@@ -21,9 +21,8 @@ Transitioning from 9 years in telecommunications (fiber installations, customer 
 ## 📂 Lab Projects
 
 ### 1. Packet Tracer Labs
-- [VLAN Configuration & Inter-VLAN Routing](./packet-tracer/vlan-routing/)
-- [OSPF Multi-Area Configuration](./packet-tracer/ospf-lab/)
-- [ACL Security Implementation](./packet-tracer/acl-security/)
+- [Secure VLAN Design with ACLs and Port Security](./packet-tracer/vlan-routing/)
+- 
 
 ### 2. Security+ Hands-On
 - [Home Lab Firewall Setup (pfSense)](./security/firewall-lab/)
