@@ -751,9 +751,9 @@ This lab demonstrates enterprise security for:
 
 ## 🔗 Related Labs
 
-- [Lab 2: Site-to-Site VPN with IPsec](../vpn/lab02-site-to-site-vpn.md) - Coming next
-- [Lab 3: 802.1X Network Access Control](../security/lab03-802.1x-nac.md) - Future
-- [Lab 4: OSPF Multi-Area Design](../routing/lab04-ospf-multi-area.md) - Future
+- [Lab 2: Site-to-Site VPN with IPsec](../packet-tracer/vpn/lab02-site-to-site-vpn.md) - Coming next
+- [Lab 3: 802.1X Network Access Control](../packet-tracer/security/lab03-802.1x-nac.md) - Future
+- [Lab 4: OSPF Multi-Area Design](../packet-tracer/routing/lab04-ospf-multi-area.md) - Future
 
 ---
 
