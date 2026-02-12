@@ -21,8 +21,8 @@ Transitioning from 9 years in telecommunications (fiber installations, customer 
 ## 📂 Lab Projects
 
 ### 1. Packet Tracer Labs
-- [Secure VLAN Design with ACLs and Port Security](./packet-tracer/vlan-routing/)
-- [Site-to-Site VPN with IPsec](./packet-tracer/vpn/)
+- [Secure VLAN Design with ACLs and Port Security](./packet-tracer/vlan-routing/lab01-secure-vlan-design-with-acls-and-port-security.md)
+- [Site-to-Site VPN with IPsec](./packet-tracer/vpn/lab02-site-to-site-vpn.md)
 
 ### 2. Security+ Hands-On
 - [Home Lab Firewall Setup (pfSense)](./security/firewall-lab/)
