@@ -1,0 +1,1 @@
+<content of lab02-site-to-site-vpn.md>
