@@ -23,9 +23,9 @@ Transitioning from 9 years in telecommunications (fiber installations, customer 
 ### 1. Packet Tracer Labs
 - [Secure VLAN Design with ACLs and Port Security](./packet-tracer/vlan-routing/lab01-secure-vlan-acl.md)
 - [Site-to-Site VPN with IPsec](./packet-tracer/vpn/lab02-site-to-site-vpn.md)
-- [Lab 3: 802.1X Network Access Control](../security/lab03-802.1x-nac.md)
-- [Lab 4: OSPF Multi-Area Design](../routing/lab04-ospf-multi-area.md)
-- [Lab 5: High Availability with HSRP](../redundancy/lab05-hsrp.md)
+- [Lab 3: 802.1X Network Access Control](./packet-tracer/security/lab03-802.1x-nac.md)
+- [Lab 4: OSPF Multi-Area Design](./packet-tracer//routing/lab04-ospf-multi-area.md)
+- [Lab 5: High Availability with HSRP](./packet-tracer//redundancy/lab05-hsrp.md)
 
 ### 2. Security+ Hands-On
 - [Home Lab Firewall Setup (pfSense)](./security/firewall-lab/)
