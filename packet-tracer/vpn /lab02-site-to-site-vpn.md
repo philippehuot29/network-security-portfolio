@@ -815,7 +815,7 @@ R2-Branch(config)# access-list 100 permit ip 192.168.2.0 0.0.0.255 192.168.1.0 0
 
 ## 🔗 Related Labs
 
-- [Lab 1: Secure VLAN Design with ACLs](../vlan-routing/lab01-secure-vlan-acl.md) - Previous
+- [Lab 1: Secure VLAN Design with ACLs](../vlan-routing/lab01-secure-vlan-design-with-acls-and-port-security.md) - Previous
 - [Lab 3: 802.1X Network Access Control](../security/lab03-802.1x-nac.md) - Next
 - [Lab 4: OSPF Multi-Area Design](../routing/lab04-ospf-multi-area.md) - Future
 - [Lab 5: High Availability with HSRP](../redundancy/lab05-hsrp.md) - Future
