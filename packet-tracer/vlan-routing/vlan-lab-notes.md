@@ -1,4 +1,4 @@
-# Lab 41: VLAN Configuration and Inter-VLAN Routing
+# Lab 1: VLAN Configuration and Inter-VLAN Routing
 
 ## 🎯 Objective
 Configure VLANs on a Cisco switch to segment network traffic and enable communication between VLANs using router-on-a-stick (inter-VLAN routing).
