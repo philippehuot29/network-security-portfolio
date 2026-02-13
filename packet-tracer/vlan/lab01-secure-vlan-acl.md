@@ -23,11 +23,11 @@ Design and implement a secure multi-VLAN network with:
 ### Network Topology
 ```
                     Internet/WAN
-                         |
-                    Router0 (Fa0/0: DHCP Client)
-                         |
-                   Gig0/0 (Trunk)
-                         |
+                          |
+                    Router0 (Gi0/0: DHCP Client)
+                          |
+                    Gig0/1 (Trunk)
+                          |
                     Switch0
          _________________|_________________
         |                 |                 |
