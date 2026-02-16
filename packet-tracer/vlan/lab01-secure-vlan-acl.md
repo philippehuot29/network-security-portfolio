@@ -21,6 +21,12 @@ Design and implement a secure multi-VLAN network with:
 ## 📋 Network Design
 
 ### Network Topology
+
+![Lab 1 Network Topology](../../diagrams/lab01-topology.png)
+
+*Figure 1: Complete network topology with VLANs, router-on-a-stick, and security features*
+
+### Topology Details
 ```
                     Router1 (ISP)
                           |
