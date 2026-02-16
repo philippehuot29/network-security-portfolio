@@ -12,23 +12,27 @@ Design and implement a secure multi-VLAN network with:
 **Real-World Scenario:** Small business with 3 departments needs secure network segmentation to comply with data protection regulations.
 
 ## 🔧 Equipment Used
-- 1 Cisco Router (Router0) - 1841 or 2911
+- 2 Cisco Router (Router0:Gateway and Router1:ISP) - 1841 or 2911
 - 1 Cisco Switch (Switch0) - 2960
 - 1 Server (DHCP Server)
 - 6 PCs (2 per department)
-- Software: Cisco Packet Tracer 8.2+
+- Software: Cisco Packet Tracer 9.0.0
 
 ## 📋 Network Design
 
 ### Network Topology
 ```
-                    Internet/WAN
+                    Router1 (ISP)
                           |
-                    Router0 (Gi0/0: DHCP Client)
+                    Gi 0/1: Internet/WAN
+                          |
+                    Router0 (R1-Gatway)
+                          |
+                    Gi0/0 (DHCP Client)
                           |
                     Gig0/1 (Trunk)
                           |
-                    Switch0
+                    Switch0 (Sw-Core-01)
          _________________|_________________
         |                 |                 |
     [VLAN 10]         [VLAN 20]         [VLAN 30]
@@ -44,6 +48,8 @@ Design and implement a secure multi-VLAN network with:
 | 20 | IT | 192.168.20.0/24 | .1 | .10-.50 | IT staff + servers (most privileged) |
 | 30 | Guest | 192.168.30.0/24 | .1 | .10-.100 | Guest WiFi (internet only) |
 | 99 | Management | 192.168.99.0/24 | .1 | Static only | Switch management (security) |
+| - | Router WAN | 203.0.113.2/30 | Static | Realistic Internet Simulation |
+| - | ISP | 203.0.113.1/30 | Static | Realistic Internet Simulation |
 
 ### Security Requirements
 
@@ -259,7 +265,7 @@ GigabitEthernet0/1         yes        unlimited
 
 ---
 
-### PHASE 4: ROUTER CONFIGURATION (INTER-VLAN ROUTING)
+### PHASE 4: ROUTER CONFIGURATION (INTER-VLAN ROUTING + ISP ROUTER)
 
 #### Step 9: Configure Router Subinterfaces
 ```cisco
@@ -295,12 +301,53 @@ Router(config)# interface gig0/0
 Router(config-if)# no shutdown
 Router(config-if)# exit
 ```
+#### Step 10: Configure IP Helper-Address (DHCP Relay)
+```cisco
+Router(config)# interface gig0/0.10
+Router(config-if)# ip helper-address 192.168.20.10
 
----
+Router(config)# interface gig0/0.30
+Router(config-if)# ip helper-address 192.168.20.10
+```
+**Why needed:**
+- DHCP server is in VLAN 20 (IT)
+- VLANs 10 (Sales) and 30 (Guest) are different broadcast domains
+- DHCP broadcasts don't cross VLANs by default
+- Router must relay DHCP requests from Sales/Guest to server
 
+#### Step 11: Configure Gateway and ISP Router (Realistic Internet Simulation)
+##### On R1 (Main Router):
+```cisco
+Router(config)# hostname R1-Gateway
+R1-Gateway(config)# interface Gi0/1
+R1-Gateway(config-if)# ip address 203.0.113.2 255.255.255.252
+R1-Gateway(config-if)# no shutdown
+
+R1-Gateway(config)# ip route 0.0.0.0 0.0.0.0 203.0.113.1
+```
+##### On ISP Router
+```cisco
+Router(config)# hostname ISP
+ISP(config)# interface Gi0/1
+ISP(config-if)# ip address 203.0.113.1 255.255.255.252
+ISP(config-if)# no shutdown
+
+ISP(config)# interface loopback 0
+ISP(config-if)# ip address 8.8.8.8 255.255.255.255
+
+ISP(config)# ip route 192.168.10.0 255.255.255.0 203.0.113.2
+ISP(config)# ip route 192.168.20.0 255.255.255.0 203.0.113.2
+ISP(config)# ip route 192.168.30.0 255.255.255.0 203.0.113.2
+ISP(config)# ip route 192.168.99.0 255.255.255.0 203.0.113.2
+```
+**Why needed:**
+- More realistic WAN simulation
+- Demonstrates default route configuration
+- Shows return routing (ISP needs routes back to LANs)
+---- 
 ### PHASE 5: ACCESS CONTROL LISTS (ACLs)
 
-#### Step 10: Create ACLs for Inter-VLAN Security
+#### Step 12: Create ACLs for Inter-VLAN Security
 ```cisco
 ! ===== ACL 110: Sales VLAN Restrictions =====
 ! Allow Sales to access internet (simulated as 8.8.8.8)
@@ -308,48 +355,64 @@ Router(config-if)# exit
 ! Deny Sales from accessing Guest VLAN
 ! Deny Sales from accessing Management VLAN
 
-Router(config)# access-list 110 remark === Sales VLAN Access Control ===
+R1-Gateway(config)# access-list 110 remark === Sales VLAN Access Control ===
+
+! Allow web browsing (Established = return TCP traffic)
+R1-Gateway(config)# access-list 110 permit tcp any 192.168.10.0 0.0.0.255 established
+
+! Allow ping (Echo = ping request/Echo-reply = ping response)
+R1-Gateway(config)# access-list 110 permit icmp any 192.168.10.0 0.0.0.255 echo
+R1-Gateway(config)# access-list 110 permit icmp any 192.168.10.0 0.0.0.255 echo-reply
+R1-Gateway(config)# access-list 110 permit icmp 192.168.10.0 0.0.0.255 any echo
 
 ! Allow DNS (required for internet)
-Router(config)# access-list 110 permit udp 192.168.10.0 0.0.0.255 any eq 53
+R1-Gateway(config)# access-list 110 permit udp 192.168.10.0 0.0.0.255 any eq 53
 
 ! Allow HTTP/HTTPS (internet access)
-Router(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq 80
-Router(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq 443
+R1-Gateway(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq 80
+R1-Gateway(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq 443
 
 ! Deny access to IT VLAN
-Router(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
 
 ! Deny access to Guest VLAN
-Router(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
+R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
 
 ! Deny access to Management VLAN
-Router(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.99.0 0.0.0.255
+R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.99.0 0.0.0.255
 
 ! Permit other traffic (internet)
-Router(config)# access-list 110 permit ip 192.168.10.0 0.0.0.255 any
+R1-Gateway(config)# access-list 110 permit ip 192.168.10.0 0.0.0.255 any
 ```
 ```cisco
 ! ===== ACL 120: Guest VLAN Restrictions =====
 ! Allow Guest to access internet ONLY
 ! Deny all internal network access
 
-Router(config)# access-list 120 remark === Guest VLAN Access Control ===
+R1-Gateway(config)# access-list 120 remark === Guest VLAN Access Control ===
+
+! Allow web browsing (Established = return TCP traffic)
+R1-Gateway(config)# access-list 120 permit tcp any 192.168.30.0 0.0.0.255 established
+
+! Allow ping (Echo = ping request/Echo-reply = ping response)
+R1-Gateway(config)# access-list 120 permit icmp any 192.168.30.0 0.0.0.255 echo
+R1-Gateway(config)# access-list 120 permit icmp any 192.168.30.0 0.0.0.255 echo-reply
+R1-Gateway(config)# access-list 120 permit icmp 192.168.30.0 0.0.0.255 any echo
 
 ! Allow DNS
-Router(config)# access-list 120 permit udp 192.168.30.0 0.0.0.255 any eq 53
+R1-Gateway(config)# access-list 120 permit udp 192.168.30.0 0.0.0.255 any eq 53
 
 ! Allow HTTP/HTTPS
-Router(config)# access-list 120 permit tcp 192.168.30.0 0.0.0.255 any eq 80
-Router(config)# access-list 120 permit tcp 192.168.30.0 0.0.0.255 any eq 443
+R1-Gateway(config)# access-list 120 permit tcp 192.168.30.0 0.0.0.255 any eq 80
+R1-Gateway(config)# access-list 120 permit tcp 192.168.30.0 0.0.0.255 any eq 443
 
 ! Deny access to all internal VLANs (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
-Router(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 10.0.0.0 0.255.255.255
-Router(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 172.16.0.0 0.15.255.255
-Router(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
+R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 10.0.0.0 0.255.255.255
+R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 172.16.0.0 0.15.255.255
+R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
 
 ! Permit internet (public IPs)
-Router(config)# access-list 120 permit ip 192.168.30.0 0.0.0.255 any
+R1-Gateway(config)# access-list 120 permit ip 192.168.30.0 0.0.0.255 any
 ```
 ```cisco
 ! ===== ACL 130: Management VLAN Protection =====
@@ -359,68 +422,113 @@ Router(config)# access-list 120 permit ip 192.168.30.0 0.0.0.255 any
 Router(config)# access-list 130 remark === Management VLAN Protection ===
 
 ! Allow IT VLAN to access Management VLAN (SSH, SNMP)
-Router(config)# access-list 130 permit tcp 192.168.20.0 0.0.0.255 192.168.99.0 0.0.0.255 eq 22
-Router(config)# access-list 130 permit udp 192.168.20.0 0.0.0.255 192.168.99.0 0.0.0.255 eq 161
+R1-Gateway(config)# access-list 130 permit icmp any 192.168.20.0 0.0.0.255 echo-reply
+R1-Gateway(config)# access-list 130 permit tcp 192.168.20.0 0.0.0.255 192.168.99.0 0.0.0.255 eq 22
+R1-Gateway(config)# access-list 130 permit udp 192.168.20.0 0.0.0.255 192.168.99.0 0.0.0.255 eq 161
+
+! Deny Sales to IT and Guest
+R1-Gateway(config)# deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+R1-Gateway(config)# deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
+
+! Deny Guest to IT and Sales
+R1-Gateway(config)# deny ip 192.168.30.0 0.0.0.255 192.168.20.0 0.0.0.255
+R1-Gateway(config)# deny ip 192.168.30.0 0.0.0.255 192.168.10.0 0.0.0.255
 
 ! Deny everyone else
-Router(config)# access-list 130 deny ip any 192.168.99.0 0.0.0.255
+R1-Gateway(config)# access-list 130 deny ip any 192.168.99.0 0.0.0.255
 
 ! Permit all other traffic
-Router(config)# access-list 130 permit ip any any
+R1-Gateway(config)# access-list 130 permit ip any any
 ```
 
-#### Step 11: Apply ACLs to Subinterfaces
+#### Step 13: Apply ACLs to Subinterfaces
 ```cisco
 ! Apply ACL to Sales VLAN (outbound)
-Router(config)# interface gig0/0.10
-Router(config-subif)# ip access-group 110 out
-Router(config-subif)# exit
+R1-Gateway(config)# interface gig0/0.10
+R1-Gateway(config-subif)# ip access-group 110 out
+R1-Gateway(config-subif)# exit
 
 ! Apply ACL to Guest VLAN (outbound)
-Router(config)# interface gig0/0.30
-Router(config-subif)# ip access-group 120 out
-Router(config-subif)# exit
+R1-Gateway(config)# interface gig0/0.30
+R1-Gateway(config-subif)# ip access-group 120 out
+R1-Gateway(config-subif)# exit
 
 ! Apply ACL to protect Management VLAN (inbound on all subinterfaces)
-Router(config)# interface gig0/0.10
-Router(config-subif)# ip access-group 130 in
-Router(config-subif)# exit
+R1-Gateway(config)# interface gig0/0.10
+R1-Gateway(config-subif)# ip access-group 130 in
+R1-Gateway(config-subif)# exit
 
-Router(config)# interface gig0/0.20
-Router(config-subif)# ip access-group 130 in
-Router(config-subif)# exit
-
-Router(config)# interface gig0/0.30
-Router(config-subif)# ip access-group 130 in
-Router(config-subif)# exit
+R1-Gateway(config)# interface gig0/0.30
+R1-Gateway(config-subif)# ip access-group 130 in
+R1-Gateway(config-subif)# exit
 ```
 
-#### Step 12: Verify ACL Configuration
+#### Step 14: Verify ACL Configuration
 ```cisco
-Router# show access-lists 110
+R1-Gateway# show access-lists 110
 Extended IP access list 110
-    10 permit udp 192.168.10.0 0.0.0.255 any eq domain (24 matches)
-    20 permit tcp 192.168.10.0 0.0.0.255 any eq www (156 matches)
-    30 permit tcp 192.168.10.0 0.0.0.255 any eq 443 (89 matches)
-    40 deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255 (5 matches)
-    50 deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
-    60 deny ip 192.168.10.0 0.0.0.255 192.168.99.0 0.0.0.255 (2 matches)
-    70 permit ip 192.168.10.0 0.0.0.255 any (342 matches)
+    permit tcp any 192.168.10.0 0.0.0.255 established
+    permit icmp any 192.168.10.0 0.0.0.255 echo
+    permit icmp any 192.168.10.0 0.0.0.255 echo-reply
+    permit icmp 192.168.10.0 0.0.0.255 any echo
+    permit udp 192.168.10.0 0.0.0.255 any eq domain
+    permit tcp 192.168.10.0 0.0.0.255 any eq www
+    permit tcp 192.168.10.0 0.0.0.255 any eq 443
+    deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+    deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
+    deny ip 192.168.10.0 0.0.0.255 192.168.99.0 0.0.0.255
+    permit ip 192.168.10.0 0.0.0.255 any
 
-Router# show ip interface gig0/0.10
-GigabitEthernet0/0.10 is up, line protocol is up
+R1-Gateway# show ip interface gig0/0.10 | include access list
   Outgoing access list is 110
   Inbound  access list is 130
-```
 
+R1-Gatway#show access-lists 120
+Extended IP access list 120
+    permit tcp any 192.168.30.0 0.0.0.255 established
+    permit icmp any 192.168.30.0 0.0.0.255 echo
+    permit icmp any 192.168.30.0 0.0.0.255 echo-reply
+    permit icmp 192.168.30.0 0.0.0.255 any echo
+    permit udp 192.168.30.0 0.0.0.255 any eq domain
+    permit tcp 192.168.30.0 0.0.0.255 any eq www
+    permit tcp 192.168.30.0 0.0.0.255 any eq 443
+    deny ip 192.168.30.0 0.0.0.255 10.0.0.0 0.255.255.255
+    deny ip 192.168.30.0 0.0.0.255 172.16.0.0 0.15.255.255
+    deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
+    permit ip 192.168.30.0 0.0.0.255 any
+
+R1-Gatway#show ip int g0/0.20 | include access list
+  Outgoing access list is not set
+  Inbound  access list is not set
+
+R1-Gatway#show access-lists 130
+Extended IP access list 130
+    permit tcp 192.168.20.0 0.0.0.255 192.168.99.0 0.0.0.255 eq 22
+    permit udp 192.168.20.0 0.0.0.255 192.168.99.0 0.0.0.255 eq snmp
+    permit icmp any 192.168.20.0 0.0.0.255 echo-reply 
+    deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255 
+    deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
+    deny ip 192.168.30.0 0.0.0.255 192.168.20.0 0.0.0.255
+    deny ip 192.168.30.0 0.0.0.255 192.168.10.0 0.0.0.255
+    deny ip any 192.168.99.0 0.0.0.255 
+    permit ip any any
+
+R1-Gatway#show ip int g0/0.30 | include access list
+  Outgoing access list is 120
+  Inbound  access list is 130
+```
 ---
 
 ### PHASE 6: CONFIGURE DHCP SERVER
 
-#### Step 13: Configure DHCP Pools on Server
-
-On the DHCP Server (192.168.20.10 in IT VLAN):
-
+#### Step 15: Configure DHCP Pools on Server
+**DHCP Server Static IP Configuration:**
+1. Click Server → Desktop → IP Configuration
+- Select: Static
+- IP Address: 192.168.20.10
+- Subnet Mask: 255.255.255.0
+- Default Gateway: 192.168.20.1
+  
 **Server GUI Configuration:**
 1. Click Server → Services → DHCP
 2. Create 3 pools:
@@ -437,7 +545,7 @@ On the DHCP Server (192.168.20.10 in IT VLAN):
 - Pool Name: IT_Pool
 - Default Gateway: 192.168.20.1
 - DNS Server: 8.8.8.8
-- Start IP: 192.168.20.10
+- Start IP: 192.168.20.11
 - Subnet Mask: 255.255.255.0
 - Maximum Users: 40
 
@@ -448,49 +556,146 @@ On the DHCP Server (192.168.20.10 in IT VLAN):
 - Start IP: 192.168.30.10
 - Subnet Mask: 255.255.255.0
 - Maximum Users: 90
-
+  
+**Why needed:**
+- DHCP servers MUST have static IPs (infrastructure requirement)
+- Can't serve DHCP if the server itself needs DHCP (chicken-egg problem)
 ---
+### PHASE 7: CONFIGURE MANAGEMENT & SECURE SSH
 
-### PHASE 7: CONFIGURE SWITCH MANAGEMENT
-
-#### Step 14: Assign Management IP to Switch
+#### Step 16: Assign Management IP and SSH On Switch
 ```cisco
-! Configure management interface
-Switch(config)# interface vlan 99
-Switch(config-if)# ip address 192.168.99.10 255.255.255.0
-Switch(config-if)# no shutdown
-Switch(config-if)# exit
+Switch> enable
+Switch# configure terminal
 
-! Set default gateway
-Switch(config)# ip default-gateway 192.168.99.1
-
-! Enable SSH for secure remote management
+! ========================================
+! Step 1: Set hostname and domain
+! ========================================
 Switch(config)# hostname SW-Core-01
 SW-Core-01(config)# ip domain-name company.local
-SW-Core-01(config)# crypto key generate rsa
-How many bits in the modulus [512]: 2048
 
-! Create admin user
+! ========================================
+! Step 2: Create privileged user account
+! ========================================
+! Username: admin
+! Password: Str0ngP@ss! (encrypted with secret)
+! Privilege: 15 (full access, same as enable)
 SW-Core-01(config)# username admin privilege 15 secret Str0ngP@ss!
 
-! Enable SSH version 2 only (security)
-SW-Core-01(config)# ip ssh version 2
+! Optional: Create read-only user (privilege 1)
+SW-Core-01(config)# username readonly privilege 1 secret R3adOnly!
 
-! Configure VTY lines for SSH access
-SW-Core-01(config)# line vty 0 4
+! ========================================
+! Step 3: Set enable secret (backup)
+! ========================================
+SW-Core-01(config)# enable secret En@bl3P@ss!
+
+! ========================================
+! Step 4: Generate RSA keys for SSH
+! ========================================
+SW-Core-01(config)# crypto key generate rsa
+How many bits in the modulus [512]: 2048
+% Generating 2048 bit RSA keys, keys will be non-exportable...
+
+! ========================================
+! Step 5: Configure SSH version 2 only
+! ========================================
+SW-Core-01(config)# ip ssh version 2
+SW-Core-01(config)# ip ssh time-out 60
+SW-Core-01(config)# ip ssh authentication-retries 3
+
+! ========================================
+! Step 6: Configure VTY lines for SSH
+! ========================================
+SW-Core-01(config)# line vty 0 15
 SW-Core-01(config-line)# login local
 SW-Core-01(config-line)# transport input ssh
+SW-Core-01(config-line)# exec-timeout 10 0
 SW-Core-01(config-line)# exit
 
-! Disable telnet (security)
-SW-Core-01(config)# line vty 0 4
+! ========================================
+! Step 7: Disable Telnet (console only)
+! ========================================
+SW-Core-01(config)# line vty 0 15
 SW-Core-01(config-line)# transport input ssh
 SW-Core-01(config-line)# exit
 
-! Save configuration
+! ========================================
+! Step 8: Secure console access
+! ========================================
+SW-Core-01(config)# line console 0
+SW-Core-01(config-line)# login local
+SW-Core-01(config-line)# exec-timeout 10 0
+SW-Core-01(config-line)# logging synchronous
+SW-Core-01(config-line)# exit
+
+! ========================================
+! Step 9: SAVE CONFIGURATION
+! ========================================
 SW-Core-01# copy running-config startup-config
 ```
+#### Step 17: Assign Management IP and SSH On Router
+```cisco
+Router> enable
+Router# configure terminal
 
+! ========================================
+! Step 1: Set hostname and domain
+! ========================================
+R1-Gateway(config)# hostname R1-Gateway
+R1-Gateway(config)# ip domain-name company.local
+
+! ========================================
+! Step 2: Create privileged user accounts
+! ========================================
+R1-Gateway(config)# username admin privilege 15 secret Str0ngP@ss!
+R1-Gateway(config)# username netadmin privilege 15 secret N3t@dm1n!
+
+! Optional: Read-only user
+R1-Gateway(config)# username readonly privilege 1 secret R3adOnly!
+
+! ========================================
+! Step 3: Set enable secret
+! ========================================
+R1-Gateway(config)# enable secret En@bl3P@ss!
+
+! ========================================
+! Step 4: Generate RSA keys
+! ========================================
+R1-Gateway(config)# crypto key generate rsa
+How many bits in the modulus [512]: 2048
+
+! ========================================
+! Step 5: Configure SSH
+! ========================================
+R1-Gateway(config)# ip ssh version 2
+R1-Gateway(config)# ip ssh time-out 60
+R1-Gateway(config)# ip ssh authentication-retries 3
+
+! ========================================
+! Step 6: Configure VTY lines
+! ========================================
+R1-Gateway(config)# line vty 0 4
+R1-Gateway(config-line)# login local
+R1-Gateway(config-line)# transport input ssh
+R1-Gateway(config-line)# exec-timeout 10 0
+R1-Gateway(config-line)# exit
+
+! ========================================
+! Step 7: Secure console
+! ========================================
+R1-Gateway(config)# line console 0
+R1-Gateway(config-line)# login local
+R1-Gateway(config-line)# password C0ns0l3P@ss!
+R1-Gateway(config-line)# exec-timeout 10 0
+R1-Gateway(config-line)# logging synchronous
+R1-Gateway(config-line)# exit
+
+! ========================================
+! Step 8: SAVE
+! ========================================
+R1-Gateway# copy running-config startup-config
+```
 ---
 
 ## ✅ Testing & Verification
