@@ -914,11 +914,12 @@ Router → Switch → Sales PC [RED]
 ```
 
 **Root Cause:** ACL 110/120 blocking ICMP echo-reply packets
+
 **Debugging Steps:**
 
-1- Verified ACLs applied correctly - yes
-2- Traced packet in simulation mode - found block point!
-3- Checked ACL rules - missing ICMP permits
+1. Verified ACLs applied correctly - yes
+2. Traced packet in simulation mode - found block point!
+3. Checked ACL rules - missing ICMP permits
 
 **Solution:**
 ```cisco
@@ -948,7 +949,9 @@ Password: ****
 SW-Core-01> enable
 % No password set
 ```
+
 **Root Cause:** No enable secret configured, no privilege 15 users
+
 **Debugging Steps:**
 
 1. SSH connection works - authentication OK ✅
