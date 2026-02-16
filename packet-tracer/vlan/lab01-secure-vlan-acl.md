@@ -134,12 +134,12 @@ Switch(config-if-range)# spanning-tree portfast
 Switch(config-if-range)# exit
 
 ! Guest VLAN (Fa0/6)
-Switch(config)# interface range fa0/6
+Switch(config)# interface fa0/6
 Switch(config-if)# description Wireless Access Point - Guest VLAN
-Switch(config-if-range)# switchport mode access
-Switch(config-if-range)# switchport access vlan 30
-Switch(config-if-range)# spanning-tree portfast
-Switch(config-if-range)# exit
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 30
+Switch(config-if)# spanning-tree portfast
+Switch(config-if)# exit
 ```
 
 #### Step 3: Configure Trunk Port with Security
@@ -224,11 +224,11 @@ Switch(config-if)# exit
 
 ! Guest VLAN ports (Fa0/6) - allow 90 MAC (Guest DHCP Pool)
 Switch(config)# interface fa0/6
-Switch(config-if-range)# switchport port-security
-Switch(config-if-range)# switchport port-security maximum 90
-Switch(config-if-range)# switchport port-security violation restrict
-Switch(config-if-range)# switchport port-security mac-address sticky
-Switch(config-if-range)# exit
+Switch(config-if)# switchport port-security
+Switch(config-if)# switchport port-security maximum 90
+Switch(config-if)# switchport port-security violation restrict
+Switch(config-if)# switchport port-security mac-address sticky
+Switch(config-if)# exit
 ```
 
 **Port Security Modes Explained:**
