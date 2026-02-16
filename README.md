@@ -44,6 +44,9 @@ This repository showcases my technical expertise through **practical, real-world
 ### 🔒 Tier 1: Security & Fundamentals (Must-Have)
 
 #### [Lab 1: Secure VLAN Design with ACLs and Port Security](./packet-tracer/vlan/lab01-secure-vlan-acl.md)
+
+![Lab 1 Network Topology](../../diagrams/lab01-topology.png)
+
 **Skills Demonstrated:** Network segmentation, inter-VLAN routing, access control lists, port security, DHCP snooping
 
 **Real-World Application:** Small business with compliance requirements (PCI-DSS, HIPAA)
