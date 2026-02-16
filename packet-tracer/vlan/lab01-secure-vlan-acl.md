@@ -108,23 +108,6 @@ Switch(config-vlan)# exit
 
 ! Verify VLANs created
 Switch# show vlan brief
-
-VLAN Name                             Status    Ports
----- -------------------------------- --------- -------------------------------
-1    default                          active    Gig0/2
-10   Sales                            active    Fa0/1, Fa0/2
-20   IT                               active    Fa0/3, Fa0/4, Fa0/5
-30   Guest                            active    Fa0/6, Fa0/7
-99   Management                       active    
-999  VLAN0999                         active    Fa0/8, Fa0/9, Fa0/10, Fa0/11
-                                                Fa0/12, Fa0/13, Fa0/14, Fa0/15
-                                                Fa0/16, Fa0/17, Fa0/18, Fa0/19
-                                                Fa0/20, Fa0/21, Fa0/22, Fa0/23
-                                                Fa0/24
-1002 fddi-default                     active    
-1003 token-ring-default               active    
-1004 fddinet-default                  active    
-1005 trnet-default                    active 
 ```
 
 #### Step 2: Assign Access Ports to VLANs
@@ -178,6 +161,25 @@ Switch(config-if-range)# shutdown
 Switch(config-if-range)# switchport mode access
 Switch(config-if-range)# switchport access vlan 999
 Switch(config-if-range)# exit
+
+! Verify VLANs created
+Switch# show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Gig0/2
+10   Sales                            active    Fa0/1, Fa0/2
+20   IT                               active    Fa0/3, Fa0/4, Fa0/5
+30   Guest                            active    Fa0/6, Fa0/7
+99   Management                       active    
+999  VLAN0999                         active    Fa0/8, Fa0/9, Fa0/10, Fa0/11
+                                                Fa0/12, Fa0/13, Fa0/14, Fa0/15
+                                                Fa0/16, Fa0/17, Fa0/18, Fa0/19
+                                                Fa0/20, Fa0/21, Fa0/22, Fa0/23
+                                                Fa0/24
+1002 fddi-default                     active    
+1003 token-ring-default               active    
+1004 fddinet-default                  active    
+1005 trnet-default                    active 
 ```
 
 **Why this matters:** Unused ports are entry points for attackers. Always shut them down.
