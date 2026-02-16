@@ -15,7 +15,8 @@ Design and implement a secure multi-VLAN network with:
 - 2 Cisco Router (Router0:Gateway and Router1:ISP) - 1841 or 2911
 - 1 Cisco Switch (Switch0) - 2960
 - 1 Server (DHCP Server)
-- 6 PCs (2 per department)
+- 4 PCs (2 per department)
+- 2 Laptops (with Wifi adapter)
 - Software: Cisco Packet Tracer 9.0.0
 
 ## 📋 Network Design
@@ -42,8 +43,8 @@ Design and implement a secure multi-VLAN network with:
          _________________|_________________
         |                 |                 |
     [VLAN 10]         [VLAN 20]         [VLAN 30]
-     Sales             IT/Admin          Guest
-   (2 PCs)           (2 PCs + Server)   (2 PCs)
+     Sales             IT/Admin          Access Point - Guest
+   (2 PCs)           (2 PCs + Server)   (2 Laptops)
 ```
 
 ### IP Addressing Scheme
@@ -56,6 +57,12 @@ Design and implement a secure multi-VLAN network with:
 | 99 | Management | 192.168.99.0/24 | .1 | Static | Switch management (security) |
 | - | Router WAN | 203.0.113.2/30 | Static | Realistic Internet Simulation |
 | - | ISP | 203.0.113.1/30 | Static | Realistic Internet Simulation |
+
+### Wireless Settings
+- **SSID:** `Guest-WiFi`
+- **Authentication:** `WPA2-PSK`
+- **Passphrase:** `GuestAccess2026!`
+- **VLAN:** 30 (if AP supports VLAN tagging)
 
 ### Security Requirements
 
@@ -126,8 +133,9 @@ Switch(config-if-range)# switchport access vlan 20
 Switch(config-if-range)# spanning-tree portfast
 Switch(config-if-range)# exit
 
-! Guest VLAN (Fa0/6-7)
-Switch(config)# interface range fa0/6-7
+! Guest VLAN (Fa0/6)
+Switch(config)# interface range fa0/6
+Switch(config-if)# description Wireless Access Point - Guest VLAN
 Switch(config-if-range)# switchport mode access
 Switch(config-if-range)# switchport access vlan 30
 Switch(config-if-range)# spanning-tree portfast
@@ -155,8 +163,8 @@ Switch(config-if)# exit
 
 #### Step 4: Shutdown Unused Ports (Security Best Practice)
 ```cisco
-! Shutdown all unused ports (Fa0/8-24)
-Switch(config)# interface range fa0/8-24
+! Shutdown all unused ports (Fa0/7-24)
+Switch(config)# interface range fa0/7-24
 Switch(config-if-range)# shutdown
 Switch(config-if-range)# switchport mode access
 Switch(config-if-range)# switchport access vlan 999
@@ -169,13 +177,13 @@ VLAN Name                             Status    Ports
 1    default                          active    Gig0/2
 10   Sales                            active    Fa0/1, Fa0/2
 20   IT                               active    Fa0/3, Fa0/4, Fa0/5
-30   Guest                            active    Fa0/6, Fa0/7
+30   Guest                            active    Fa0/6 
 99   Management                       active    
-999  VLAN0999                         active    Fa0/8, Fa0/9, Fa0/10, Fa0/11
-                                                Fa0/12, Fa0/13, Fa0/14, Fa0/15
-                                                Fa0/16, Fa0/17, Fa0/18, Fa0/19
-                                                Fa0/20, Fa0/21, Fa0/22, Fa0/23
-                                                Fa0/24
+999  VLAN0999                         active    Fa0/7,  Fa0/8, Fa0/9, Fa0/10 
+                                                Fa0/11, Fa0/12, Fa0/13, Fa0/14 
+                                                Fa0/15, Fa0/16, Fa0/17, Fa0/18
+                                                Fa0/19, Fa0/20, Fa0/21, Fa0/22
+                                                Fa0/23, Fa0/24
 1002 fddi-default                     active    
 1003 token-ring-default               active    
 1004 fddinet-default                  active    
@@ -214,10 +222,10 @@ Switch(config-if)# switchport port-security violation shutdown
 Switch(config-if)# switchport port-security mac-address sticky
 Switch(config-if)# exit
 
-! Guest VLAN ports (Fa0/6-7)
-Switch(config)# interface range fa0/6-7
+! Guest VLAN ports (Fa0/6) - allow 90 MAC (Guest DHCP Pool)
+Switch(config)# interface fa0/6
 Switch(config-if-range)# switchport port-security
-Switch(config-if-range)# switchport port-security maximum 2
+Switch(config-if-range)# switchport port-security maximum 90
 Switch(config-if-range)# switchport port-security violation restrict
 Switch(config-if-range)# switchport port-security mac-address sticky
 Switch(config-if-range)# exit
