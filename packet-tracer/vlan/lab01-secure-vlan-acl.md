@@ -47,7 +47,7 @@ Design and implement a secure multi-VLAN network with:
 | 10 | Sales | 192.168.10.0/24 | .1 | .10-.50 | Sales department workstations |
 | 20 | IT | 192.168.20.0/24 | .1 | .10-.50 | IT staff + servers (most privileged) |
 | 30 | Guest | 192.168.30.0/24 | .1 | .10-.100 | Guest WiFi (internet only) |
-| 99 | Management | 192.168.99.0/24 | .1 | Static only | Switch management (security) |
+| 99 | Management | 192.168.99.0/24 | .1 | Static | Switch management (security) |
 | - | Router WAN | 203.0.113.2/30 | Static | Realistic Internet Simulation |
 | - | ISP | 203.0.113.1/30 | Static | Realistic Internet Simulation |
 
@@ -711,7 +711,7 @@ Reply from 192.168.10.11: bytes=32 time<1ms TTL=128
 
 ### Test 2: Inter-VLAN Routing (Allowed)
 
-**From IT PC (192.168.20.10):**
+**From IT PC (192.168.20.11):**
 ```
 C:\> ping 192.168.10.10
 Reply from 192.168.10.10: bytes=32 time=2ms TTL=127
@@ -723,7 +723,7 @@ Reply from 192.168.10.10: bytes=32 time=2ms TTL=127
 **From Sales PC (192.168.10.10):**
 ```
 C:\> ping 192.168.20.10
-Request timed out.
+destination host unreachable
 ✅ SUCCESS - ACL correctly blocks Sales from accessing IT VLAN
 ```
 
@@ -739,7 +739,7 @@ Extended IP access list 110
 **From Guest PC (192.168.30.10):**
 ```
 C:\> ping 192.168.10.10
-Request timed out.
+destination host unreachable
 ✅ SUCCESS - Guest cannot access Sales VLAN
 
 C:\> ping 8.8.8.8
@@ -752,7 +752,7 @@ Reply from 8.8.8.8: bytes=32 time=15ms TTL=118
 **Test on Sales PC port (Fa0/1):**
 
 1. Disconnect PC0
-2. Connect a different PC to Fa0/1
+2. Connect two different PCs to Fa0/1 (Maximum 2 MAC addresses per access port)
 3. Port shuts down automatically
 
 **Verify on Switch:**
@@ -771,12 +771,30 @@ Switch(config-if)# shutdown
 Switch(config-if)# no shutdown
 ```
 
-### Test 6: Management VLAN Access Control
+### Test 6: Testing SSH Access
 
-**From IT PC (192.168.20.10):**
+**From IT PC (192.168.20.11) (Privilege 15 User):**
 ```
-C:\> ssh admin@192.168.99.10
-✅ SUCCESS - IT VLAN can SSH to switch
+C:\> ssh -l admin@192.168.99.10
+Password: Str0ngP@ss!
+SW-Core-01#  ← Notice # prompt (privileged mode immediately!)
+
+C:\> ssh -l admin@192.168.99.1
+Password: Str0ngP@ss!
+R1-Gateway#  ← Notice # prompt (privileged mode immediately!)
+✅ SUCCESS - IT VLAN can SSH to switch and router in admin 
+```
+
+**From IT PC (192.168.20.11) (Read-Only User):**
+```
+C:\> ssh -l readonly 192.168.99.10
+Password: R3adOnly!
+SW-Core-01>  ← Notice > prompt (user mode)
+
+C:\> ssh -l readonly 192.168.99.1
+Password: R3adOnly!
+R1-Gateway>  ← Notice > prompt (user mode)
+✅ SUCCESS - IT VLAN can SSH to switch and router in read-only
 ```
 
 **From Sales PC (192.168.10.10):**
@@ -785,93 +803,152 @@ C:\> ssh admin@192.168.99.10
 Request timed out.
 ✅ SUCCESS - Sales blocked from management
 ```
-
 ---
 
 ## 🐛 Troubleshooting Issues I Encountered
 
-### Problem 1: Sales couldn't access internet
+### Problem 1: All PCs Have APIPA Addresses
+
+**Symptom:**
+```
+All PCs: 169.254.x.x
+```
+
+**Root Cause:** DHCP server itself had APIPA address (was set to obtain IP via DHCP)
+
+**Debugging Steps:**
+1. Checked DHCP service - ON ✅
+2. Checked DHCP pools - configured ✅
+3. Checked switch port - in correct VLAN ✅
+4. Checked server IP - **APIPA!** ❌
+
+**Solution:** Configured server with static IP (192.168.20.10)
+
+**Result:** Server got valid IP, but PCs in VLANs 10/30 still got APIPA
+
+---
+
+### Problem 2: VLAN 20 DHCP Works, VLAN 10/30 Fails**
+
+**Symptom:**
+```
+IT PC (VLAN 20): 192.168.20.11 ✅
+Sales PC (VLAN 10): 169.254.x.x ❌
+Guest PC (VLAN 30): 169.254.x.x ❌
+```
+
+**Root Cause:** DHCP broadcasts don't cross VLANs, need relay
+
+**Debugging Steps:**
+1. Verified server can ping gateway - works ✅
+2. Verified server in VLAN 20 - correct ✅
+3. Realized: Sales/Guest in different VLANs - need helper address!
+
+**Solution:**
+```cisco
+Router(config)# interface gig0/0.10
+Router(config-if)# ip helper-address 192.168.20.10
+
+Router(config)# interface gig0/0.30
+Router(config-if)# ip helper-address 192.168.20.10
+```
+**Result:** All PCs now get DHCP addresses ✅
+
+---
+### Problem 3: No Internet Access (8.8.8.8 Unreachable)
 
 **Symptom:**
 ```
 C:\> ping 8.8.8.8
-Request timed out.
+Destination host unreachable
 ```
 
-**Root Cause:** Forgot to add DNS and HTTP/HTTPS permit statements BEFORE deny statements in ACL 110.
+**Root Cause:** No route to internet/no internet simulation
+
+**Debugging Steps:**
+
+1. Checked PC can ping gateway - works ✅
+2. Checked router has route to 8.8.8.8 - none! ❌
+
+**Solution:**
+- Added ISP router
+- Configured WAN link (203.0.113.0/30)
+- Added default route on R1
+- Added return routes on ISP
+
+**Result:** All PCs can ping 8.8.8.8 ✅
+
+---
+### Problem 4: IT Can Ping Sales/Guest, But No Reply
+
+**Symptom (Simulation Mode):**
+```
+IT PC → Switch → Router → Switch → Sales PC [GREEN]
+Sales PC → Switch → Router [GREEN then RED X]
+Router → Switch → Sales PC [RED]
+```
+
+**Root Cause:** ACL 110/120 blocking ICMP echo-reply packets
+**Debugging Steps:**
+
+1- Verified ACLs applied correctly - yes
+2- Traced packet in simulation mode - found block point!
+3- Checked ACL rules - missing ICMP permits
 
 **Solution:**
 ```cisco
-Router(config)# no access-list 110
-Router(config)# access-list 110 permit udp 192.168.10.0 0.0.0.255 any eq 53
-Router(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq 80
-Router(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq 443
-Router(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
-Router(config)# access-list 110 permit ip 192.168.10.0 0.0.0.255 any
+! ACL 110 - allow ping TO Sales
+access-list 110 permit icmp any 192.168.10.0 0.0.0.255 echo
+access-list 110 permit icmp any 192.168.10.0 0.0.0.255 echo-reply
+
+! ACL 120 - allow ping TO Guest  
+access-list 120 permit icmp any 192.168.30.0 0.0.0.255 echo
+access-list 120 permit icmp any 192.168.30.0 0.0.0.255 echo-reply
+
+! ACL 130 - allow ping replies TO IT
+access-list 130 permit icmp any 192.168.20.0 0.0.0.255 echo-reply
 ```
 
-**Lesson Learned:** ACL order matters! Always put permit statements before deny statements.
+**Result:** IT can now ping Sales and Guest, receives replies ✅
+
+**Key Insight:** ACLs are stateless - must permit BOTH directions
 
 ---
-
-### Problem 2: DHCP snooping blocked legitimate DHCP
-
-**Symptom:** PCs couldn't get IP addresses after enabling DHCP snooping
-
-**Root Cause:** Forgot to configure DHCP server port (Fa0/5) and router uplink (Gig0/1) as trusted.
-
-**Solution:**
-```cisco
-Switch(config)# interface fa0/5
-Switch(config-if)# ip dhcp snooping trust
-
-Switch(config)# interface gig0/1
-Switch(config-if)# ip dhcp snooping trust
-```
-
-**Lesson Learned:** DHCP snooping defaults all ports to untrusted. Must explicitly trust legitimate DHCP sources.
-
----
-
-### Problem 3: Port security shut down ports after reboot
-
-**Symptom:** After switch reload, all protected ports went to err-disabled
-
-**Root Cause:** Sticky MAC addresses weren't saved to startup-config.
-
-**Solution:**
-```cisco
-Switch# copy running-config startup-config
-```
-
-**Lesson Learned:** Sticky MACs only persist if you save the config!
-
----
-
-### Problem 4: Management VLAN unreachable
+### Problem 5: SSH Works But Can't Enter Privileged Mode
 
 **Symptom:**
 ```
-C:\> ping 192.168.99.10
-Request timed out.
+C:\> ssh -l admin 192.168.99.10
+Password: ****
+SW-Core-01> enable
+% No password set
 ```
+**Root Cause:** No enable secret configured, no privilege 15 users
+**Debugging Steps:**
 
-**Root Cause:** Management VLAN interface up but protocol down (no active port in VLAN 99).
+1. SSH connection works - authentication OK ✅
+2. enable fails - no password set ❌
 
-**Solution:** Create dummy port in VLAN 99:
+**Solution:**
 ```cisco
-Switch(config)# interface fa0/24
-Switch(config-if)# switchport access vlan 99
-Switch(config-if)# no shutdown
-```
 
-**Lesson Learned:** SVI needs at least one active port for protocol to come up.
+! Create privilege 15 user (direct privileged access)
+Switch(config)# username admin privilege 15 secret Str0ngP@ss!
+
+! Add enable secret (backup method)
+Switch(config)# enable secret En@bl3P@ss!
+
+! Configure VTY for local authentication
+Switch(config)# line vty 0 15
+Switch(config-line)# login local
+```
+**Result:** SSH login with admin goes directly to privileged mode ✅
 
 ---
 
 ## 📝 Key Takeaways
 
-### Security Principles Demonstrated
+### 📋 Security Principles Demonstrated
 
 ✅ **Defense in Depth:** Multiple security layers (VLANs + ACLs + Port Security + DHCP Snooping)
 
@@ -881,18 +958,35 @@ Switch(config-if)# no shutdown
 
 ✅ **Attack Surface Reduction:** Unused ports shutdown, native VLAN changed, DTP disabled
 
-### Technical Skills Showcased
+### 📋 Security Best Practices Summary
+
+| Practice | Configuration | Why |
+|----------|---------------|-----|
+| Strong passwords | 12+ chars, mixed case, numbers, symbols | Prevent brute force |
+| Privilege levels | privilege 15 for admins, 1 for read-only | Least privilege principle | 
+| Enable secret | enable secret NOT enable password | MD5 encryption | 
+| SSHv2 only | ip ssh version 2 | SSHv1 has vulnerabilities | 
+| Disable Telnet | transport input ssh | Telnet is plaintext | 
+| RSA 2048 bits | crypto key generate rsa 2048 | Industry standard | 
+| Auto-logout | exec-timeout 10 0 | Prevent unauthorized access | 
+| Login local | login local | User accountability | 
+| Limit retries | ip ssh authentication-retries 3 | Slow brute force | 
+| Console security | line console 0 + login local | Physical access control |
+
+### 📋 Technical Skills Showcased
 
 | Skill | Implementation |
 |-------|----------------|
 | VLAN Design | 4 VLANs with logical segmentation |
 | Inter-VLAN Routing | Router-on-a-stick with subinterfaces |
-| Access Control | Extended ACLs with explicit deny rules |
+| DHCP Server | Configuration and Relay |
+| Access Control | Extended ACLs with with bidirectional traffic control |
 | Port Security | MAC filtering, violation modes, sticky learning |
 | DHCP Security | Snooping to prevent rogue DHCP servers |
 | Switch Hardening | Unused port shutdown, native VLAN change |
-| Secure Management | SSH only, separate management VLAN |
-| Troubleshooting | Systematic debugging with show/debug |
+| Secure Management | SSH Security Configuration, separate management VLAN |
+| Troubleshooting | Systematic troubleshooting methodology, Packet-level debugging |
+| Security-first network design | Defense in Depth, Least Privilege, Network Segmentation, Attack Surface Reduction |
 
 ### Real-World Application
 
