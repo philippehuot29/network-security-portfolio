@@ -9,9 +9,9 @@ A comprehensive portfolio of hands-on networking labs demonstrating enterprise-l
 **Philippe Huot** - Network & Security Professional  
 📍 Currently: Croatia  
 🎓 **Certifications:**
-- CompTIA Network+ (January 2026)
-- AWS Cloud Practitioner (December 2025)
-- CompTIA Security+ (Scheduled: April 2026)
+- CompTIA Network+ N10-009 (January 2026)
+- AWS Cloud Practitioner CLF-02 (December 2025)
+- CompTIA Security+ SY0-701 (Scheduled: April 2026)
 
 **Background:** 9+ years in telecommunications including:
 - 6 years at Videotron (Major Canadian ISP)
@@ -76,7 +76,7 @@ This repository showcases my technical expertise through **practical, real-world
 - Split tunneling (LAN-to-LAN encryption only)
 - TCP MSS adjustment (MTU optimization)
 
-**Business Impact:** *Saved $35,000/year per site by replacing MPLS circuits with VPN over commodity internet.*
+**Real World Impact:** *Organizations replacing MPLS with VPN typically save $30–50K/year per site over commodity internet.*
 
 ---
 
@@ -91,10 +91,10 @@ This repository showcases my technical expertise through **practical, real-world
 - Dynamic VLAN assignment based on user identity
 - Guest VLAN fallback (non-802.1X devices)
 - MAB (MAC Authentication Bypass) for printers
-- MD5 authentication
+- PEAP/EAP-TLS authentication
 - Multi-domain authentication (IP phone + PC)
 
-**Key Takeaway:** *Implemented zero-trust network access - no connectivity without authentication. Prevented 100% of unauthorized device access.*
+**Key Takeaway:** *Implemented zero-trust network access - no connectivity without authentication. Significantly reduced unauthorized access surface.*
 
 ---
 
@@ -110,11 +110,11 @@ This repository showcases my technical expertise through **practical, real-world
 - Area Border Routers (ABRs)
 - Route summarization (67% reduction in routing table)
 - LSA types (Type 1, 2, 3)
-- OSPF authentication (MD5)
+- OSPF authentication (PEAP/EAP-TLS)
 - Reference bandwidth adjustment (10 Gbps support)
 - Stub areas
 
-**Business Impact:** *Reduced routing table size by 67%, improved convergence time from 15s to 3s with proper area design.*
+**Real World Impact:** *Organizations can reduced routing table size by 67%, improving convergence time from 15s to 3s with proper area design.*
 
 ---
 
@@ -129,10 +129,10 @@ This repository showcases my technical expertise through **practical, real-world
 - Priority and preemption
 - Interface tracking (intelligent failover)
 - Sub-3-second failover (optimized timers)
-- MD5 authentication
+- PEAP/EAP-TLS authentication
 - Active/Active load balancing (multiple HSRP groups)
 
-**Business Impact:** *Achieved 99.98% gateway uptime, prevented $168K in downtime costs annually.*
+**Real World Impact:** *Organizations can achieve 99.98% gateway uptime, prevent $150-168K in downtime costs annually.*
 
 ---
 
@@ -174,7 +174,7 @@ This repository showcases my technical expertise through **practical, real-world
 - LLQ (Low Latency Queuing)
 - Call Admission Control (CAC)
 
-**Business Impact:** *Achieved <150ms latency for VoIP, enabling company to eliminate $50K/year PBX phone bills.*
+**Real World Impact:** *Organizations can achieve <150ms latency for VoIP, enabling company to eliminate $50K/year PBX phone bills.*
 
 ---
 
@@ -210,7 +210,7 @@ This repository showcases my technical expertise through **practical, real-world
 - OSPFv3 (IPv6 routing)
 - IPv6 ACLs
 
-**Business Impact:** *Future-proofed network for cloud migration, enabled AWS VPC dual-stack deployments.*
+**Real World Impact:** *Future-proofed network for cloud migration, enabled AWS VPC dual-stack deployments.*
 
 ---
 
@@ -233,7 +233,7 @@ This repository showcases my technical expertise through **practical, real-world
 3. Compliance auditing (detect misconfigurations)
 4. Bulk interface configuration
 
-**Business Impact:** *Reduced VLAN provisioning from 2 hours to 5 minutes, eliminating human error.*
+**Real World Impact:** *Reduced VLAN provisioning from 2 hours to 5 minutes, eliminating human error.*
 
 ---
 
@@ -255,18 +255,18 @@ This repository showcases my technical expertise through **practical, real-world
 
 ## 🔄 Learning Progress
 
-### ✅ Completed (January-February 2026)
+### ✅ Completed (February 2026)
 - [x] Lab 1: Secure VLAN Design (4 hours)
-- [x] Lab 2: Site-to-Site VPN (3 hours)
-- [x] Lab 3: 802.1X NAC (3.5 hours)
-- [x] Lab 4: OSPF Multi-Area (4 hours)
-- [x] Lab 5: HSRP High Availability (3 hours)
 
 ### 🚧 In Progress
-- [ ] Lab 6: Troubleshooting Scenario (Target: Week of Feb 17)
-- [ ] Lab 7: QoS for VoIP (Target: Week of Feb 24)
+- [x] Lab 2: Site-to-Site VPN (3 hours) (Target: Week of Feb 17)
+- [ ] Lab 3: 802.1X NAC (3.5 hours) (Target: Week of Feb 24)
+- [ ] Lab 4: OSPF Multi-Area (4 hours)
+- [ ] Lab 5: HSRP High Availability (3 hours)
 
 ### 📅 Planned (March 2026)
+- [ ] Lab 6: Troubleshooting Scenario 
+- [ ] Lab 7: QoS for VoIP 
 - [ ] Lab 8: SNMP/Syslog Monitoring
 - [ ] Lab 9: IPv6 Dual-Stack
 - [ ] Lab 10: Python Automation
@@ -375,7 +375,7 @@ network-learning-journey/
 ### Current Certifications (2026)
 - ✅ **CompTIA Network+** (N10-009) - January 2026
   - Validates networking fundamentals, troubleshooting, security
-  - 80 virtual labs completed in preparation
+  - Extensive lab preparation including virtual simulations
   
 - ✅ **AWS Certified Cloud Practitioner** (CLF-C02) - December 2025
   - Cloud fundamentals, AWS services, cost optimization
@@ -401,7 +401,7 @@ network-learning-journey/
 
 **Immediate (Q1 2026):**
 - Secure remote Technical Support role (SaaS/Cloud/Infrastructure)
-- Target companies: ServiceTitan, Shopify, Atlassian, Stripe
+- Target roles: Remote Technical Support, Cloud Support Engineer, NOC Technician
 - Leverage customer service background + technical skills
 
 **Medium-Term (12-18 months):**
@@ -428,20 +428,11 @@ network-learning-journey/
 ## 📝 Recent Updates
 
 **February 12, 2026:**
-- ✅ Completed Lab 5 (HSRP High Availability)
+- ✅ Completed Lab 1 (Secure VLAN Design with ACLs and Port Security)
 - ✅ Restructured README with 10 Essential Labs
 - 📊 50% complete on lab portfolio (5/10 labs done)
-- 🎯 Next: Lab 6 (Troubleshooting Scenario) starting Feb 17
+- 🎯 Next: Lab 2 (Site-to-Site VPN with IPsec) in review
 
-**February 12, 2026:**
-- ✅ Completed Lab 4 (OSPF Multi-Area Design)
-- ✅ Added route summarization (67% routing table reduction)
-- 📈 Skills demonstrated: ABR configuration, LSA types, scalability
-
-**February 12, 2026:**
-- ✅ Completed Lab 3 (802.1X NAC)
-- ✅ Integrated RADIUS authentication with dynamic VLAN assignment
-- 🔒 Demonstrated zero-trust network access implementation
 
 ---
 
