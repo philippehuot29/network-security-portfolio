@@ -326,7 +326,7 @@ This repository showcases my technical expertise through **practical, real-world
 
 ## 📂 Repository Structure
 ```
-network-learning-journey/
+network-security-portfolio/
 ├── README.md (this file)
 │
 ├── packet-tracer/
@@ -418,7 +418,7 @@ network-learning-journey/
 
 ## 📞 Connect With Me
 
-**GitHub:** [github.com/philippehuot29](https://github.com/philippehuot29)  
+**GitHub:** [github.com/philippehuot29/network-security-portfolio](https://github.com/philippehuot29/network-security-portfolio)  
 **LinkedIn:** [linkedin.com/in/philippe-huot-848b86299](https://www.linkedin.com/in/philippe-huot-848b86299/)  
 **Email:** philippe.huot@hotmail.com  
 **Location:** Currently Croatia
