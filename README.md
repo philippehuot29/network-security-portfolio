@@ -63,7 +63,7 @@ This repository showcases my technical expertise through **practical, real-world
 
 ---
 
-#### [Lab 2: Site-to-Site VPN with IPsec](./packet-tracer/vpn/lab02-site-to-site-vpn.md)
+#### [Lab 2: Site-to-Site VPN with IPsec](./packet-tracer/vpn/lab02-site-to-site-vpn.md) (In Progress)
 **Skills Demonstrated:** IPsec VPN, cryptography, secure remote connectivity, split tunneling
 
 **Real-World Application:** Connect branch offices securely over internet (replace expensive MPLS)
@@ -80,7 +80,7 @@ This repository showcases my technical expertise through **practical, real-world
 
 ---
 
-#### [Lab 3: 802.1X Network Access Control with RADIUS](./packet-tracer/security/lab03-802.1x-nac.md)
+#### [Lab 3: 802.1X Network Access Control with RADIUS](./packet-tracer/security/lab03-802.1x-nac.md) (In Progress)
 **Skills Demonstrated:** Port-based authentication, AAA framework, identity management, dynamic VLAN assignment
 
 **Real-World Application:** Enterprise requiring authentication before network access (compliance, BYOD)
@@ -100,7 +100,7 @@ This repository showcases my technical expertise through **practical, real-world
 
 ### 🌐 Tier 2: Routing & Redundancy (Core Skills)
 
-#### [Lab 4: OSPF Multi-Area Design with Route Summarization](./packet-tracer/routing/lab04-ospf-multi-area.md)
+#### [Lab 4: OSPF Multi-Area Design with Route Summarization](./packet-tracer/routing/lab04-ospf-multi-area.md) (In Progress)
 **Skills Demonstrated:** Dynamic routing, scalability, hierarchical design, route summarization
 
 **Real-World Application:** Growing enterprise with multiple regional offices needing scalable routing
@@ -118,7 +118,7 @@ This repository showcases my technical expertise through **practical, real-world
 
 ---
 
-#### [Lab 5: High Availability Network with HSRP](./packet-tracer/redundancy/lab05-hsrp.md)
+#### [Lab 5: High Availability Network with HSRP](./packet-tracer/redundancy/lab05-hsrp.md) (In Progress)
 **Skills Demonstrated:** Gateway redundancy, failover, high availability, uptime optimization
 
 **Real-World Application:** Mission-critical network requiring 99.99% uptime (4 minutes downtime/month)
@@ -138,7 +138,7 @@ This repository showcases my technical expertise through **practical, real-world
 
 ### 🔧 Tier 3: Troubleshooting & Optimization (Differentiation)
 
-#### [Lab 6: Network Troubleshooting Scenario (Broken Network)](./packet-tracer/troubleshooting/lab06-broken-network.md)
+#### [Lab 6: Network Troubleshooting Scenario (Broken Network)](./packet-tracer/troubleshooting/lab06-broken-network.md) (In Progress)
 **Skills Demonstrated:** Systematic troubleshooting, OSI model, documentation, problem-solving
 
 **Real-World Application:** Day-1 NOC/helpdesk scenario - fix broken production network
@@ -161,7 +161,7 @@ This repository showcases my technical expertise through **practical, real-world
 
 ---
 
-#### [Lab 7: QoS Implementation for VoIP Traffic](./packet-tracer/qos/lab07-voip-qos.md)
+#### [Lab 7: QoS Implementation for VoIP Traffic](./packet-tracer/qos/lab07-voip-qos.md) (In Progress)
 **Skills Demonstrated:** Quality of Service, traffic prioritization, VoIP support, performance tuning
 
 **Real-World Application:** Enterprise deploying VoIP (Cisco, Microsoft Teams) requiring call quality
@@ -180,7 +180,7 @@ This repository showcases my technical expertise through **practical, real-world
 
 ### 🚀 Tier 4: Modern Networking (Future-Proofing)
 
-#### [Lab 8: Network Monitoring with SNMP and Syslog](./packet-tracer/monitoring/lab08-snmp-syslog.md)
+#### [Lab 8: Network Monitoring with SNMP and Syslog](./packet-tracer/monitoring/lab08-snmp-syslog.md) (In Progress)
 **Skills Demonstrated:** Proactive monitoring, alerting, logging, observability
 
 **Real-World Application:** Detect and resolve network issues before users complain
@@ -197,7 +197,7 @@ This repository showcases my technical expertise through **practical, real-world
 
 ---
 
-#### [Lab 9: IPv6 Dual-Stack Implementation](./packet-tracer/ipv6/lab09-ipv6-dual-stack.md)
+#### [Lab 9: IPv6 Dual-Stack Implementation](./packet-tracer/ipv6/lab09-ipv6-dual-stack.md) (In Progress)
 **Skills Demonstrated:** IPv6, dual-stack networking, modern addressing, migration planning
 
 **Real-World Application:** Prepare network for IPv6 (required for government, cloud, modern applications)
@@ -214,7 +214,7 @@ This repository showcases my technical expertise through **practical, real-world
 
 ---
 
-#### [Lab 10: Network Automation with Python](./packet-tracer/automation/lab10-python-automation.md)
+#### [Lab 10: Network Automation with Python](./packet-tracer/automation/lab10-python-automation.md) (In Progress)
 **Skills Demonstrated:** Network programmability, Python scripting, automation, efficiency
 
 **Real-World Application:** Automate repetitive tasks (config backups, VLAN provisioning, audits)
