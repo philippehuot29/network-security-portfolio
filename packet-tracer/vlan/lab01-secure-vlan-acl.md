@@ -33,7 +33,7 @@ Design and implement a secure multi-VLAN network with:
                           |
                     Gi 0/1: Internet/WAN
                           |
-                    Router0 (R1-Gatway)
+                    Router0 (R1-Gateway)
                           |
                     Gi0/0 (DHCP Client)
                           |
@@ -113,6 +113,10 @@ Switch(config)# vlan 99
 Switch(config-vlan)# name Management
 Switch(config-vlan)# exit
 
+Switch(config)# vlan 999
+Switch(config-vlan)# name Parking_Lot
+Switch(config-vlan)# exit
+
 ! Verify VLANs created
 Switch# show vlan brief
 ```
@@ -170,20 +174,24 @@ Switch(config-if-range)# switchport mode access
 Switch(config-if-range)# switchport access vlan 999
 Switch(config-if-range)# exit
 
+Switch(config)# interface gig0/2
+Switch(config-if)# shutdown
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 999
+
 ! Verify VLANs created
 Switch# show vlan brief
 VLAN Name                             Status    Ports
----- -------------------------------- --------- -------------------------------
-1    default                          active    Gig0/2
+---- -------------------------------- --------- -------------------------------   
 10   Sales                            active    Fa0/1, Fa0/2
 20   IT                               active    Fa0/3, Fa0/4, Fa0/5
 30   Guest                            active    Fa0/6 
 99   Management                       active    
-999  VLAN0999                         active    Fa0/7,  Fa0/8, Fa0/9, Fa0/10 
+999  Parking_Lot                      active    Fa0/7,  Fa0/8, Fa0/9, Fa0/10 
                                                 Fa0/11, Fa0/12, Fa0/13, Fa0/14 
                                                 Fa0/15, Fa0/16, Fa0/17, Fa0/18
                                                 Fa0/19, Fa0/20, Fa0/21, Fa0/22
-                                                Fa0/23, Fa0/24
+                                                Fa0/23, Fa0/24, Gig0/2
 1002 fddi-default                     active    
 1003 token-ring-default               active    
 1004 fddinet-default                  active    
@@ -223,6 +231,7 @@ Switch(config-if)# switchport port-security mac-address sticky
 Switch(config-if)# exit
 
 ! Guest VLAN ports (Fa0/6) - allow 90 MAC (Guest DHCP Pool)
+! Port security on AP-connected ports is typically handled at the AP/WLC level rather than the switch port
 Switch(config)# interface fa0/6
 Switch(config-if)# switchport port-security
 Switch(config-if)# switchport port-security maximum 90
@@ -516,7 +525,7 @@ R1-Gateway# show ip interface gig0/0.10 | include access list
   Outgoing access list is 110
   Inbound  access list is 130
 
-R1-Gatway#show access-lists 120
+R1-Gateway#show access-lists 120
 Extended IP access list 120
     permit tcp any 192.168.30.0 0.0.0.255 established
     permit icmp any 192.168.30.0 0.0.0.255 echo
@@ -530,11 +539,11 @@ Extended IP access list 120
     deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
     permit ip 192.168.30.0 0.0.0.255 any
 
-R1-Gatway#show ip int g0/0.20 | include access list
+R1-Gateway#show ip int g0/0.20 | include access list
   Outgoing access list is not set
   Inbound  access list is not set
 
-R1-Gatway#show access-lists 130
+R1-Gateway#show access-lists 130
 Extended IP access list 130
     permit tcp 192.168.20.0 0.0.0.255 192.168.99.0 0.0.0.255 eq 22
     permit udp 192.168.20.0 0.0.0.255 192.168.99.0 0.0.0.255 eq snmp
@@ -546,7 +555,7 @@ Extended IP access list 130
     deny ip any 192.168.99.0 0.0.0.255 
     permit ip any any
 
-R1-Gatway#show ip int g0/0.30 | include access list
+R1-Gateway#show ip int g0/0.30 | include access list
   Outgoing access list is 120
   Inbound  access list is 130
 ```
@@ -638,7 +647,7 @@ SW-Core-01(config)# ip ssh time-out 60
 SW-Core-01(config)# ip ssh authentication-retries 3
 
 ! ========================================
-! Step 6: Configure VTY lines for SSH
+! Step 6: Configure VTY lines for SSH (Disable Telnet)
 ! ========================================
 SW-Core-01(config)# line vty 0 15
 SW-Core-01(config-line)# login local
@@ -647,20 +656,22 @@ SW-Core-01(config-line)# exec-timeout 10 0
 SW-Core-01(config-line)# exit
 
 ! ========================================
-! Step 7: Disable Telnet (console only)
-! ========================================
-SW-Core-01(config)# line vty 0 15
-SW-Core-01(config-line)# transport input ssh
-SW-Core-01(config-line)# exit
-
-! ========================================
-! Step 8: Secure console access
+! Step 7: Secure console access
 ! ========================================
 SW-Core-01(config)# line console 0
 SW-Core-01(config-line)# login local
 SW-Core-01(config-line)# exec-timeout 10 0
 SW-Core-01(config-line)# logging synchronous
 SW-Core-01(config-line)# exit
+
+! ========================================
+! Step 8: Configure SVI (Switch Virtual Interface) on VLAN 99
+! ========================================
+SW-Core-01(config)# interface vlan 99
+SW-Core-01(config-if)# ip address 192.168.99.10 255.255.255.0
+SW-Core-01(config-if)# no shutdown
+SW-Core-01(config-if)# exit
+SW-Core-01(config)# ip default-gateway 192.168.99.1
 
 ! ========================================
 ! Step 9: SAVE CONFIGURATION
@@ -719,7 +730,6 @@ R1-Gateway(config-line)# exit
 ! ========================================
 R1-Gateway(config)# line console 0
 R1-Gateway(config-line)# login local
-R1-Gateway(config-line)# password C0ns0l3P@ss!
 R1-Gateway(config-line)# exec-timeout 10 0
 R1-Gateway(config-line)# logging synchronous
 R1-Gateway(config-line)# exit
@@ -1000,7 +1010,7 @@ Switch(config-line)# login local
 |----------|---------------|-----|
 | Strong passwords | 12+ chars, mixed case, numbers, symbols | Prevent brute force |
 | Privilege levels | privilege 15 for admins, 1 for read-only | Least privilege principle | 
-| Enable secret | enable secret NOT enable password | MD5 encryption | 
+| Enable secret | enable secret NOT enable password | MD5 encryption* | 
 | SSHv2 only | ip ssh version 2 | SSHv1 has vulnerabilities | 
 | Disable Telnet | transport input ssh | Telnet is plaintext | 
 | RSA 2048 bits | crypto key generate rsa 2048 | Industry standard | 
@@ -1008,6 +1018,8 @@ Switch(config-line)# login local
 | Login local | login local | User accountability | 
 | Limit retries | ip ssh authentication-retries 3 | Slow brute force | 
 | Console security | line console 0 + login local | Physical access control |
+
+**Type 5(MD5) by default, bu best practice in 2026 uses Type 9(scrypt) in production.*
 
 ### 📋 Technical Skills Showcased
 
