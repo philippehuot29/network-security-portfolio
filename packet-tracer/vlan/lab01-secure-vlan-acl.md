@@ -1,5 +1,10 @@
 # Lab 1: Secure VLAN Design with ACLs and Port Security
 
+**Lab Completed:** February 2026  
+**Source:** Custom lab combining Network+ and CCNA Security concepts  
+**Time Spent:** 4 hours (including security hardening and troubleshooting)  
+**Difficulty:** Intermediate
+
 ## 🎯 Objective
 Design and implement a secure multi-VLAN network with:
 - Network segmentation (VLANs)
@@ -88,7 +93,15 @@ Design and implement a secure multi-VLAN network with:
 ---
 
 ## ⚙️ Configuration Steps
+#### PHASE 1: BASIC VLAN SETUP
+#### PHASE 2: PORT SECURITY CONFIGURATION
+#### PHASE 3: DHCP SNOOPING (PREVENT ROGUE DHCP)
+#### PHASE 4: ROUTER CONFIGURATION (INTER-VLAN ROUTING + ISP ROUTER)
+#### PHASE 5: ACCESS CONTROL LISTS (ACLs)
+#### PHASE 6: CONFIGURE DHCP SERVER
+#### PHASE 7: CONFIGURE MANAGEMENT & SECURE SSH
 
+---
 ### PHASE 1: BASIC VLAN SETUP
 
 #### Step 1: Create VLANs on Switch
@@ -1117,8 +1130,4 @@ This lab demonstrates enterprise security for:
 
 ---
 
-**Lab Completed:** February 2026  
-**Source:** Custom lab combining Network+ and CCNA Security concepts  
-**Time Spent:** 4 hours (including security hardening and troubleshooting)  
-**Difficulty:** Intermediate
 
