@@ -1,4 +1,4 @@
-# Network Learning Journey 🚀
+# Network Security Portfolio 🚀
 
 A comprehensive portfolio of hands-on networking labs demonstrating enterprise-level skills in security, routing, VPNs, high availability, and automation.
 
