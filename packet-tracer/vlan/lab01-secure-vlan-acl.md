@@ -383,12 +383,21 @@ ISP(config)# ip route 192.168.99.0 255.255.255.0 203.0.113.2
 #### Step 12: Create ACLs for Inter-VLAN Security
 ```cisco
 ! ===== ACL 110: Sales VLAN Restrictions =====
-! Allow Sales to access internet (simulated as 8.8.8.8)
 ! Deny Sales from accessing IT VLAN
 ! Deny Sales from accessing Guest VLAN
 ! Deny Sales from accessing Management VLAN
+! Allow Sales to access internet (simulated as 8.8.8.8)
 
 R1-Gateway(config)# access-list 110 remark === Sales VLAN Access Control ===
+
+! Deny access to IT VLAN
+R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+
+! Deny access to Guest VLAN
+R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
+
+! Deny access to Management VLAN
+R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.99.0 0.0.0.255
 
 ! Allow web browsing (Established = return TCP traffic)
 R1-Gateway(config)# access-list 110 permit tcp any 192.168.10.0 0.0.0.255 established
@@ -405,24 +414,20 @@ R1-Gateway(config)# access-list 110 permit udp 192.168.10.0 0.0.0.255 any eq 53
 R1-Gateway(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq 80
 R1-Gateway(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq 443
 
-! Deny access to IT VLAN
-R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
-
-! Deny access to Guest VLAN
-R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
-
-! Deny access to Management VLAN
-R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.99.0 0.0.0.255
-
 ! Permit other traffic (internet)
 R1-Gateway(config)# access-list 110 permit ip 192.168.10.0 0.0.0.255 any
 ```
 ```cisco
 ! ===== ACL 120: Guest VLAN Restrictions =====
-! Allow Guest to access internet ONLY
 ! Deny all internal network access
+! Allow Guest to access internet ONLY
 
 R1-Gateway(config)# access-list 120 remark === Guest VLAN Access Control ===
+
+! Deny access to all internal VLANs (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 10.0.0.0 0.255.255.255
+R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 172.16.0.0 0.15.255.255
+R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
 
 ! Allow web browsing (Established = return TCP traffic)
 R1-Gateway(config)# access-list 120 permit tcp any 192.168.30.0 0.0.0.255 established
@@ -439,11 +444,6 @@ R1-Gateway(config)# access-list 120 permit udp 192.168.30.0 0.0.0.255 any eq 53
 R1-Gateway(config)# access-list 120 permit tcp 192.168.30.0 0.0.0.255 any eq 80
 R1-Gateway(config)# access-list 120 permit tcp 192.168.30.0 0.0.0.255 any eq 443
 
-! Deny access to all internal VLANs (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
-R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 10.0.0.0 0.255.255.255
-R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 172.16.0.0 0.15.255.255
-R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
-
 ! Permit internet (public IPs)
 R1-Gateway(config)# access-list 120 permit ip 192.168.30.0 0.0.0.255 any
 ```
@@ -452,7 +452,7 @@ R1-Gateway(config)# access-list 120 permit ip 192.168.30.0 0.0.0.255 any
 ! Allow ONLY IT VLAN to access Management VLAN
 ! Deny all other VLANs
 
-Router(config)# access-list 130 remark === Management VLAN Protection ===
+R1-Gateway(config)# access-list 130 remark === Management VLAN Protection ===
 
 ! Allow IT VLAN to access Management VLAN (SSH, SNMP)
 R1-Gateway(config)# access-list 130 permit icmp any 192.168.20.0 0.0.0.255 echo-reply
@@ -460,12 +460,12 @@ R1-Gateway(config)# access-list 130 permit tcp 192.168.20.0 0.0.0.255 192.168.99
 R1-Gateway(config)# access-list 130 permit udp 192.168.20.0 0.0.0.255 192.168.99.0 0.0.0.255 eq 161
 
 ! Deny Sales to IT and Guest
-R1-Gateway(config)# deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
-R1-Gateway(config)# deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
+R1-Gateway(config)# access-list 130 deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+R1-Gateway(config)# access-list 130 deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
 
 ! Deny Guest to IT and Sales
-R1-Gateway(config)# deny ip 192.168.30.0 0.0.0.255 192.168.20.0 0.0.0.255
-R1-Gateway(config)# deny ip 192.168.30.0 0.0.0.255 192.168.10.0 0.0.0.255
+R1-Gateway(config)# access-list 130 deny ip 192.168.30.0 0.0.0.255 192.168.20.0 0.0.0.255
+R1-Gateway(config)# access-list 130 deny ip 192.168.30.0 0.0.0.255 192.168.10.0 0.0.0.255
 
 ! Deny everyone else
 R1-Gateway(config)# access-list 130 deny ip any 192.168.99.0 0.0.0.255
