@@ -261,10 +261,10 @@ This repository showcases my technical expertise through **practical, real-world
 ### 🚧 In Progress
 - [x] Lab 2: Site-to-Site VPN (3 hours) (Target: Week of Feb 17)
 - [ ] Lab 3: 802.1X NAC (3.5 hours) (Target: Week of Feb 24)
-- [ ] Lab 4: OSPF Multi-Area (4 hours)
-- [ ] Lab 5: HSRP High Availability (3 hours)
 
 ### 📅 Planned (March 2026)
+- [ ] Lab 4: OSPF Multi-Area (4 hours)
+- [ ] Lab 5: HSRP High Availability (3 hours)
 - [ ] Lab 6: Troubleshooting Scenario 
 - [ ] Lab 7: QoS for VoIP 
 - [ ] Lab 8: SNMP/Syslog Monitoring
