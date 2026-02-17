@@ -412,15 +412,6 @@ ISP(config)# ip route 192.168.99.0 255.255.255.0 203.0.113.2
 
 R1-Gateway(config)# access-list 110 remark === Sales VLAN Access Control ===
 
-! Deny access to IT VLAN
-R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
-
-! Deny access to Guest VLAN
-R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
-
-! Deny access to Management VLAN
-R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.99.0 0.0.0.255
-
 ! Allow web browsing (Established = return TCP traffic)
 R1-Gateway(config)# access-list 110 permit tcp any 192.168.10.0 0.0.0.255 established
 
@@ -436,6 +427,15 @@ R1-Gateway(config)# access-list 110 permit udp 192.168.10.0 0.0.0.255 any eq 53
 R1-Gateway(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq 80
 R1-Gateway(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq 443
 
+! Deny access to IT VLAN
+R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+
+! Deny access to Guest VLAN
+R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.30.0 0.0.0.255
+
+! Deny access to Management VLAN
+R1-Gateway(config)# access-list 110 deny ip 192.168.10.0 0.0.0.255 192.168.99.0 0.0.0.255
+
 ! Permit other traffic (internet)
 R1-Gateway(config)# access-list 110 permit ip 192.168.10.0 0.0.0.255 any
 ```
@@ -445,11 +445,6 @@ R1-Gateway(config)# access-list 110 permit ip 192.168.10.0 0.0.0.255 any
 ! Allow Guest to access internet ONLY
 
 R1-Gateway(config)# access-list 120 remark === Guest VLAN Access Control ===
-
-! Deny access to all internal VLANs (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
-R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 10.0.0.0 0.255.255.255
-R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 172.16.0.0 0.15.255.255
-R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
 
 ! Allow web browsing (Established = return TCP traffic)
 R1-Gateway(config)# access-list 120 permit tcp any 192.168.30.0 0.0.0.255 established
@@ -465,6 +460,11 @@ R1-Gateway(config)# access-list 120 permit udp 192.168.30.0 0.0.0.255 any eq 53
 ! Allow HTTP/HTTPS
 R1-Gateway(config)# access-list 120 permit tcp 192.168.30.0 0.0.0.255 any eq 80
 R1-Gateway(config)# access-list 120 permit tcp 192.168.30.0 0.0.0.255 any eq 443
+
+! Deny access to all internal VLANs (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 10.0.0.0 0.255.255.255
+R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 172.16.0.0 0.15.255.255
+R1-Gateway(config)# access-list 120 deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
 
 ! Permit internet (public IPs)
 R1-Gateway(config)# access-list 120 permit ip 192.168.30.0 0.0.0.255 any
