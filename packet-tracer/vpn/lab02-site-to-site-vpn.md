@@ -164,6 +164,12 @@ Success rate is 100 percent (5/5)
 
 #### Step 5: Configure IKE Phase 1 (ISAKMP Policy) on HQ Router
 ```cisco
+!Enable Security Technology Package, Accept the EULA (yes), Save and Reload (Mandatory)
+R1-HQ(config)# license boot module c2900 technology-package securityk9
+R1-HQ(config)# exit
+R1-HQ# write memory
+R1-HQ# reload
+
 R1-HQ(config)# crypto isakmp policy 10
 R1-HQ(config-isakmp)# encryption aes 256
 R1-HQ(config-isakmp)# hash sha256
@@ -187,6 +193,12 @@ R1-HQ(config)# crypto isakmp key C0mp@nyVPN!2026 address 203.0.113.6
 
 #### Step 6: Configure IKE Phase 1 (ISAKMP Policy) on Branch Router
 ```cisco
+!Enable Security Technology Package, Accept the EULA (yes), Save and Reload (Mandatory)
+R2-Branch(config)# license boot module c2900 technology-package securityk9
+R2-Branch(config)# exit
+R2-Branch# write memory
+R2-Branch# reload
+
 R2-Branch(config)# crypto isakmp policy 10
 R2-Branch(config-isakmp)# encryption aes 256
 R2-Branch(config-isakmp)# hash sha256
