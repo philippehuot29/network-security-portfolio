@@ -227,10 +227,13 @@ R2-Branch(config)# crypto isakmp key C0mp@nyVPN!2026 address 203.0.113.1
 #### Step 7: Configure IPsec Transform Set (Phase 2) on HQ Router
 ```cisco
 ! Create transform set (encryption + hashing combo)
-R1-HQ(config)# crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha256-hmac
+R1-HQ(config)# crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha-hmac
 R1-HQ(cfg-crypto-trans)# mode tunnel
 R1-HQ(cfg-crypto-trans)# exit
 ```
+***Packet Tracer Limitation:** hash sha defaults to SHA-1. They don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today. Correct prompt would be: crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha256-hmac*
+
+**Note:** In Packet Tracer, mode tunnel is actually the default setting for IPsec Site-to-Site VPNs.
 
 **What this means:**
 - **VPN-SET:** Name of transform set
@@ -241,10 +244,13 @@ R1-HQ(cfg-crypto-trans)# exit
 #### Step 8: Configure IPsec Transform Set (Phase 2) on Branch Router
 ```cisco
 ! Create identical transform set
-R2-Branch(config)# crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha256-hmac
+R2-Branch(config)# crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha-hmac
 R2-Branch(cfg-crypto-trans)# mode tunnel
 R2-Branch(cfg-crypto-trans)# exit
 ```
+***Packet Tracer Limitation:** hash sha defaults to SHA-1. They don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today. Correct prompt would be: crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha256-hmac*
+
+**Note:** In Packet Tracer, mode tunnel is actually the default setting for IPsec Site-to-Site VPNs.
 
 ---
 
@@ -276,7 +282,7 @@ R1-HQ(config-crypto-map)# description Site-to-Site VPN to Branch Office
 R1-HQ(config-crypto-map)# set peer 203.0.113.6
 R1-HQ(config-crypto-map)# set transform-set VPN-SET
 R1-HQ(config-crypto-map)# match address 100
-R1-HQ(config-crypto-map)# set pfs group14
+R1-HQ(config-crypto-map)# set pfs group5
 R1-HQ(config-crypto-map)# exit
 ```
 
@@ -284,7 +290,7 @@ R1-HQ(config-crypto-map)# exit
 - **set peer:** Remote router's public IP
 - **set transform-set:** Use VPN-SET we created earlier
 - **match address 100:** Use ACL 100 for interesting traffic
-- **set pfs group14:** Enable Perfect Forward Secrecy (extra security)
+- **set pfs group14:** Enable Perfect Forward Secrecy (extra security) (in this case with Packet Limitation is **group5**)
 
 #### Step 12: Create Crypto Map on Branch Router
 ```cisco
@@ -294,7 +300,7 @@ R2-Branch(config-crypto-map)# description Site-to-Site VPN to HQ Office
 R2-Branch(config-crypto-map)# set peer 203.0.113.1
 R2-Branch(config-crypto-map)# set transform-set VPN-SET
 R2-Branch(config-crypto-map)# match address 100
-R2-Branch(config-crypto-map)# set pfs group14
+R2-Branch(config-crypto-map)# set pfs group5
 R2-Branch(config-crypto-map)# exit
 ```
 
