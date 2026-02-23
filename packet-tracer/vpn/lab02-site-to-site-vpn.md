@@ -17,6 +17,8 @@ Configure a secure site-to-site VPN tunnel using IPsec between two remote office
 
 ![Lab 2 Network Topology](../../diagrams/lab02-topology.png)
 
+*Figure 1: Complete network topology for a Site-to-Site IPsec VPN tunnel between New York HQ and Los Angeles Branch*
+
 ### Topology Details
 
 ```
