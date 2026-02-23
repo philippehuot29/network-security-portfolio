@@ -141,6 +141,12 @@ ISP(config-if)# exit
 ! Configure routes to both sites
 ISP(config)# ip route 192.168.1.0 255.255.255.0 203.0.113.1
 ISP(config)# ip route 192.168.2.0 255.255.255.0 203.0.113.6
+
+! Configure Loopback to route other internet traffic
+ISP(config)# interface loopback 0
+ISP(config-if)# ip address 8.8.8.8 255.255.255.0
+ISP(config-if)#no shutdown
+ISP(config-if)#exit
 ```
 
 #### Step 4: Verify Basic Connectivity
@@ -248,7 +254,7 @@ R2-Branch(config)# crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha-hmac
 R2-Branch(cfg-crypto-trans)# mode tunnel
 R2-Branch(cfg-crypto-trans)# exit
 ```
-***Packet Tracer Limitation:** hash sha defaults to SHA-1. They don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today. Correct prompt would be: crypto ipsec transform-set VPN-SET esp-aes 256 esp-sha256-hmac*
+***Packet Tracer Limitation:** hash sha defaults to SHA-1. They don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today. Correct command would be: crypto ipsec transform-set VPN-SET esp-aes 256 esp-**sha256**-hmac*
 
 **Note:** In Packet Tracer, mode tunnel is actually the default setting for IPsec Site-to-Site VPNs.
 
@@ -343,10 +349,8 @@ Protection suite of priority 10
 
 **Verify ISAKMP Key:**
 ```cisco
-R1-HQ# show crypto isakmp key
-Keyring      Hostname/Address                            Preshared Key
-
-default      203.0.113.6                                 C0mp@nyVPN!2026
+R1-HQ#show running-config | include crypto isakmp key
+crypto isakmp key C0mp@nyVPN!2026 address 203.0.113.6
 ```
 
 #### Step 16: Generate Interesting Traffic to Establish Tunnel
@@ -416,7 +420,33 @@ interface: GigabitEthernet0/1
 
 ---
 
-#### Step 19: Monitor VPN Traffic in Real-Time
+#### Step 19: Verify Crypto Map
+
+**On HQ Router:**
+```cisco
+R1-HQ# show crypto map
+Crypto Map VPN-MAP 10 ipsec-isakmp
+        Peer = 203.0.113.6
+        Extended IP access list 100
+            access-list 100 remark === VPN Interesting Traffic ===
+            access-list 100 permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255
+        Current peer: 203.0.113.6
+        Security association lifetime: 4608000 kilobytes/3600 seconds
+        PFS (Y/N): Y
+        Transform sets={
+                VPN-SET,
+        }
+        Interfaces using crypto map VPN-MAP:
+                GigabitEthernet0/1
+```
+**Key Information:**
+- **Peer:** This is the **Public IP address** of the router at the other end of the tunnel.
+- **Extended IP access list:** This shows which ACL is being used to "catch" traffic.
+- **Transform sets={...}:** This is the encryption "recipe", crucial for security. It lists the algorithms (like AES and SHA) that the routers will use to protect the data.
+- **Interfaces using crypto map:** It lists which physical interface the map is applied to. A crypto map is useless until it is "assigned" to a WAN interface.
+---
+
+#### Step 20: Monitor VPN Traffic in Real-Time
 
 **Enable debug (use carefully in production!):**
 ```cisco
@@ -453,9 +483,11 @@ Reply from 192.168.2.10: bytes=32 time=21ms TTL=126
 
 **Verify encryption on router:**
 ```cisco
-R1-HQ# show crypto ipsec sa | include pkts
+R1-HQ# show crypto ipsec sa
+(...)
     #pkts encaps: 245, #pkts encrypt: 245, #pkts digest: 245
     #pkts decaps: 231, #pkts decrypt: 231, #pkts verify: 231
+(...)
 
 ! Packet counters increasing = traffic being encrypted
 ```
@@ -520,12 +552,16 @@ dst             src             state          conn-id slot status
 
 **Check what traffic is being encrypted:**
 ```cisco
-R1-HQ# show crypto ipsec sa peer 203.0.113.6
+R1-HQ# show crypto ipsec sa 
 
-  local crypto endpt.: 203.0.113.1, remote crypto endpt.: 203.0.113.6
-  local  ident (addr/mask/prot/port): (192.168.1.0/255.255.255.0/0/0)
-  remote ident (addr/mask/prot/port): (192.168.2.0/255.255.255.0/0/0)
-  
+interface: GigabitEthernet0/1
+    Crypto map tag: VPN-MAP, local addr 203.0.113.1
+
+   protected vrf: (none)
+   local  ident (addr/mask/prot/port): (192.168.1.0/255.255.255.0/0/0)
+   remote  ident (addr/mask/prot/port): (192.168.2.0/255.255.255.0/0/0)
+   current_peer 203.0.113.6 port 500
+    PERMIT, flags={origin_is_acl,}
   #pkts encaps: 487, #pkts encrypt: 487, #pkts digest: 487
   #pkts decaps: 462, #pkts decrypt: 462, #pkts verify: 462
   #pkts compressed: 0, #pkts decompressed: 0
@@ -578,13 +614,11 @@ R1-HQ# debug crypto isakmp
 
 **Verification:**
 ```cisco
-R1-HQ# show crypto isakmp key
-Keyring      Hostname/Address                            Preshared Key
-default      203.0.113.6                                 C0mp@nyVPN!2026
+R1-HQ#show running-config | include crypto isakmp key
+crypto isakmp key C0mp@nyVPN!2026 address 203.0.113.6
 
-R2-Branch# show crypto isakmp key
-Keyring      Hostname/Address                            Preshared Key
-default      203.0.113.1                                 C0mp@nyVPN!2025  (WRONG!)
+R2-Branch# show running-config | include crypto isakmp key
+crypto isakmp key C0mp@nyVPN!2025 address 203.0.113.1  (WRONG!)
 ```
 
 **Solution:**
@@ -623,116 +657,26 @@ Reply from 192.168.2.10: bytes=32 time=18ms
 R1-HQ# ping 192.168.2.10 source 192.168.1.1
 !!!!!
 ```
-
 ---
 
-### Problem 3: Internet access broken after VPN config
+### Problem 3: Packet Tracer 9.0.0 Limitation 
 
 **Symptom:**
-```
-C:\> ping 8.8.8.8
-Request timed out (no internet access)
-```
-
-**Debugging:**
 ```cisco
-R1-HQ# show crypto ipsec sa | include pkts
-    #pkts encaps: 1245, #pkts encrypt: 1245
-
-! ALL packets being encrypted (even internet-bound!)
+% Invalid input detected at '^' marker.
 ```
-
-**Root Cause:** Crypto ACL too broad - encrypting ALL traffic instead of just LAN-to-LAN.
-
-**Check ACL:**
-```cisco
-R1-HQ# show access-list 100
-access-list 100 permit ip 192.168.1.0 0.0.0.255 any  (WRONG!)
-```
-
-**Solution:**
-```cisco
-R1-HQ(config)# no access-list 100
-R1-HQ(config)# access-list 100 permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255
-```
-
-**Lesson Learned:** Crypto ACL must be SPECIFIC - only LAN-to-LAN traffic!
-
----
-
-### Problem 4: VPN works but performance is terrible
-
-**Symptom:** Ping latency over 200ms (should be ~20-30ms)
-
-**Debugging:**
-```cisco
-R1-HQ# show crypto ipsec sa | include errors
-  #send errors 34, #recv errors 0
-
-! Send errors indicate MTU issues
-```
-
-**Root Cause:** MTU/fragmentation problems due to IPsec overhead.
-
-**Solution:** Adjust TCP MSS on both routers:
-```cisco
-R1-HQ(config)# interface gig0/1
-R1-HQ(config-if)# ip tcp adjust-mss 1360
-R1-HQ(config-if)# exit
-
-R2-Branch(config)# interface gig0/1
-R2-Branch(config-if)# ip tcp adjust-mss 1360
-R2-Branch(config-if)# exit
-```
-
-**Why 1360?**
-- Normal MTU: 1500 bytes
-- IPsec overhead: ~50-60 bytes (ESP header + trailer)
-- TCP MSS: 1500 - 40 (IP header) - 20 (TCP header) - 80 (IPsec) = 1360
-
-**Test after adjustment:**
-```
-C:\> ping 192.168.2.10 -l 1400
-Reply from 192.168.2.10: bytes=1400 time=22ms
-✅ No fragmentation!
-```
-
-**Lesson Learned:** Always adjust TCP MSS for VPN tunnels to avoid fragmentation.
-
----
-
-### Problem 5: Tunnel established but no traffic flows
-
-**Symptom:**
-```
-R1-HQ# show crypto isakmp sa
-! Shows ACTIVE
-
-R1-HQ# show crypto ipsec sa | include pkts
-    #pkts encaps: 0, #pkts encrypt: 0
-! Zero packets encrypted!
-```
-
-**Root Cause:** Crypto ACLs don't mirror each other properly.
-
-**Check both sides:**
-```cisco
-R1-HQ# show access-list 100
-access-list 100 permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255
-
-R2-Branch# show access-list 100
-access-list 100 permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255  (WRONG!)
-```
-
-**Problem:** Branch ACL should be MIRROR (source/dest swapped).
-
-**Solution:**
-```cisco
-R2-Branch(config)# no access-list 100
-R2-Branch(config)# access-list 100 permit ip 192.168.2.0 0.0.0.255 192.168.1.0 0.0.0.255
-```
-
-**Lesson Learned:** Crypto ACLs must be mirror images - swap source and destination!
+**Root Cause:** This is Limitation behavior!
+- **Hash:** sha defaults to SHA-1. Packet Tracer’s older IOS models don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today.
+- **Group:** Packet Tracer’s older IOS models top out at Group 5. Real-world security standards now mandate Group 14 ($2048$-bit) or higher to protect against modern computing power.
+- **show crypto ipsec sa | include (...):** some show commands won't work. Use the three golden commands.
+  
+**Workaround:**
+- **Hash:** SHA-1 (instead of SHA-2)
+- **Group:** Group 5 (instead of Group 14)
+- **Three Golden commands:**
+  - ```show crypto isakmp sa``` (Should show **QM_IDLE**)
+  - ```show crypto ipsec sa``` (Should show **#pkts encrypt/decrypt** counts increasing)
+  -  ```show crypto map``` (To see the active binding on the interface)
 
 ---
 
