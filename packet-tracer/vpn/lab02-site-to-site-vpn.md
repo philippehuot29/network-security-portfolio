@@ -182,8 +182,9 @@ R1-HQ(config-isakmp)# exit
 ! Configure pre-shared key
 R1-HQ(config)# crypto isakmp key C0mp@nyVPN!2026 address 203.0.113.6
 ```
-*Packet Tracer Limitation:* hash sha defaults to SHA-1. They don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today.
-*Packet Tracer Limitation:* Packet Tracer’s older IOS models top out at Group 5. Real-world security standards now mandate Group 14 ($2048$-bit) or higher to protect against modern computing power.
+***Packet Tracer Limitation:** hash sha defaults to SHA-1. They don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today.*
+
+***Packet Tracer Limitation:** Packet Tracer’s older IOS models top out at Group 5. Real-world security standards now mandate Group 14 ($2048$-bit) or higher to protect against modern computing power.*
 
 **What each parameter means:**
 - **Policy 10:** Priority (lower number = higher priority)
@@ -215,8 +216,10 @@ R2-Branch(config-isakmp)# exit
 R2-Branch(config)# crypto isakmp key C0mp@nyVPN!2026 address 203.0.113.1
 ```
 
-*Packet Tracer Limitation:* hash sha defaults to SHA-1. They don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today.
-*Packet Tracer Limitation:* Packet Tracer’s older IOS models top out at Group 5. Real-world security standards now mandate Group 14 ($2048$-bit) or higher to protect against modern computing power.
+***Packet Tracer Limitation:** hash sha defaults to SHA-1. They don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today.*
+
+***Packet Tracer Limitation:** Packet Tracer’s older IOS models top out at Group 5. Real-world security standards now mandate Group 14 ($2048$-bit) or higher to protect against modern computing power.*
+
 **CRITICAL:** Pre-shared key and all policy parameters must match on both sides!
 
 ---
