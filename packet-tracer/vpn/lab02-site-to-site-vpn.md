@@ -170,17 +170,20 @@ R1-HQ(config)# exit
 R1-HQ# write memory
 R1-HQ# reload
 
+!Configure ISAKMP Policy* (See note at the bottom about Packet Tracer Limitation)
 R1-HQ(config)# crypto isakmp policy 10
 R1-HQ(config-isakmp)# encryption aes 256
-R1-HQ(config-isakmp)# hash sha256
+R1-HQ(config-isakmp)# hash sha
 R1-HQ(config-isakmp)# authentication pre-share
-R1-HQ(config-isakmp)# group 14
+R1-HQ(config-isakmp)# group 5
 R1-HQ(config-isakmp)# lifetime 28800
 R1-HQ(config-isakmp)# exit
 
 ! Configure pre-shared key
 R1-HQ(config)# crypto isakmp key C0mp@nyVPN!2026 address 203.0.113.6
 ```
+*Packet Tracer Limitation:* hash sha defaults to SHA-1. They don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today.
+*Packet Tracer Limitation:* Packet Tracer’s older IOS models top out at Group 5. Real-world security standards now mandate Group 14 ($2048$-bit) or higher to protect against modern computing power.
 
 **What each parameter means:**
 - **Policy 10:** Priority (lower number = higher priority)
@@ -199,11 +202,12 @@ R2-Branch(config)# exit
 R2-Branch# write memory
 R2-Branch# reload
 
+!Configure ISAKMP Policy* (See note at the bottom about Packet Tracer Limitation)
 R2-Branch(config)# crypto isakmp policy 10
 R2-Branch(config-isakmp)# encryption aes 256
-R2-Branch(config-isakmp)# hash sha256
+R2-Branch(config-isakmp)# hash sha
 R2-Branch(config-isakmp)# authentication pre-share
-R2-Branch(config-isakmp)# group 14
+R2-Branch(config-isakmp)# group 5
 R2-Branch(config-isakmp)# lifetime 28800
 R2-Branch(config-isakmp)# exit
 
@@ -211,6 +215,8 @@ R2-Branch(config-isakmp)# exit
 R2-Branch(config)# crypto isakmp key C0mp@nyVPN!2026 address 203.0.113.1
 ```
 
+*Packet Tracer Limitation:* hash sha defaults to SHA-1. They don't support the newer SHA-2 family (SHA-256, SHA-512) for the ISAKMP policy, even though those are the industry standards today.
+*Packet Tracer Limitation:* Packet Tracer’s older IOS models top out at Group 5. Real-world security standards now mandate Group 14 ($2048$-bit) or higher to protect against modern computing power.
 **CRITICAL:** Pre-shared key and all policy parameters must match on both sides!
 
 ---
