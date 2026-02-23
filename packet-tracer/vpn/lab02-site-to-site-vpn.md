@@ -6,24 +6,28 @@ Configure a secure site-to-site VPN tunnel using IPsec between two remote office
 **Real-World Scenario:** Company has headquarters in New York and branch office in Los Angeles. Both offices need secure communication over the internet without using expensive dedicated circuits (MPLS).
 
 ## 🔧 Equipment Used
-- 2 Cisco Routers (R1-HQ, R2-Branch) - 1841 or 2911
+- 3 Cisco Routers (R1-HQ, R2-Branch, ISP) - 1841 or 2911
 - 2 Cisco Switches (SW1, SW2) - 2960
 - 4 PCs (2 per site)
-- 1 ISP Cloud/Router (simulating internet)
-- Software: Cisco Packet Tracer 8.2+
+- Software: Cisco Packet Tracer 9.0.0
 
 ## 📋 Network Design
 
 ### Network Topology
+
+![Lab 2 Network Topology](../../diagrams/lab02-topology.png)
+
+### Topology Details
+
 ```
 [HQ Office - New York]                            [Branch Office - Los Angeles]
                                                    
 PC1 ---- SW1 ---- R1-HQ ---------- INTERNET ---------- R2-Branch ---- SW2 ---- PC3
  |                  |             (ISP Cloud)            |                      |
-PC2                LAN                                  WAN                    PC4
+PC2              LAN/WAN                              WAN/LAN                  PC4
 
-Private Network:                                    Private Network:
-192.168.1.0/24                                     192.168.2.0/24
+Private Network:    |           Public Network:          |        Private Network:
+192.168.1.0/24      |           203.0.113.0/30           |        192.168.2.0/24
 ```
 
 ### IP Addressing Scheme
