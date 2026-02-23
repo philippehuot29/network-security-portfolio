@@ -63,7 +63,10 @@ This repository showcases my technical expertise through **practical, real-world
 
 ---
 
-#### [Lab 2: Site-to-Site VPN with IPsec](./packet-tracer/vpn/lab02-site-to-site-vpn.md) (In Progress)
+#### [Lab 2: Site-to-Site VPN with IPsec](./packet-tracer/vpn/lab02-site-to-site-vpn.md)
+
+![Lab 2 Network Topology](../main/diagrams/lab02-topology.png)
+
 **Skills Demonstrated:** IPsec VPN, cryptography, secure remote connectivity, split tunneling
 
 **Real-World Application:** Connect branch offices securely over internet (replace expensive MPLS)
