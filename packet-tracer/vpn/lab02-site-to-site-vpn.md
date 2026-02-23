@@ -40,7 +40,7 @@ Private Network:                                    Private Network:
 | Device | Interface | IP Address | Purpose |
 |--------|-----------|------------|---------|
 | R2-Branch | Gig0/0 (LAN) | 192.168.2.1/24 | LAN gateway |
-| R2-Branch | Gig0/1 (WAN) | 203.0.113.2/30 | Internet connection |
+| R2-Branch | Gig0/1 (WAN) | 203.0.113.6/30 | Internet connection |
 | PC3 | NIC | 192.168.2.10/24 | End user |
 | PC4 | NIC | 192.168.2.11/24 | End user |
 
