@@ -47,8 +47,8 @@ Private Network:                                    Private Network:
 **ISP Network:**
 | Device | Interface | IP Address | Purpose |
 |--------|-----------|------------|---------|
-| ISP Router | Gig0/0 | 203.0.113.1/30 | HQ connection |
-| ISP Router | Gig0/1 | 203.0.113.2/30 | Branch connection |
+| ISP Router | Gig0/0 | 203.0.113.2/30 | HQ connection |
+| ISP Router | Gig0/1 | 203.0.113.5/30 | Branch connection |
 
 ### VPN Requirements
 
