@@ -83,7 +83,10 @@ This repository showcases my technical expertise through **practical, real-world
 
 ---
 
-#### [Lab 3: 802.1X Network Access Control with RADIUS](./packet-tracer/security/lab03-802.1x-nac.md) (In Progress)
+#### [Lab 3: 802.1X Network Access Control with RADIUS](./packet-tracer/security/lab03-802.1x-nac.md)
+
+![Lab 2 Network Topology](../main/diagrams/lab03-topology.png)
+
 **Skills Demonstrated:** Port-based authentication, AAA framework, identity management, dynamic VLAN assignment
 
 **Real-World Application:** Enterprise requiring authentication before network access (compliance, BYOD)
