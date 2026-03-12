@@ -7,7 +7,7 @@ A comprehensive portfolio of hands-on networking labs demonstrating enterprise-l
 ## 👋 About Me
 
 **Philippe Huot** - Network & Security Professional  
-📍 Currently: Croatia  
+ 
 🎓 **Certifications:**
 - CompTIA Network+ N10-009 (January 2026)
 - AWS Cloud Practitioner CLF-02 (December 2025)
@@ -19,7 +19,7 @@ A comprehensive portfolio of hands-on networking labs demonstrating enterprise-l
 - 21,000+ customer interactions with 90% first-call resolution
 - Expertise: FTTH networks, technical support, network troubleshooting
 
-**Career Goal:** Transition to remote cloud security and technical support roles, leveraging hands-on lab experience and industry certifications.
+**Career Goal:** Transition to cloud security roles, leveraging hands-on lab experience and industry certifications.
 
 ---
 
